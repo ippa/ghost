@@ -1,0 +1,19 @@
+= GHOST
+Entry for Mini LD #14, theme: Comedy and Tragedy
+
+URL: http://github.com/ippa/ghost
+
+== Run from source
+To run from source You need:
+
+  Ruby 1.8.7+ - Download @ ruby-lang.org
+  Gosu        - Install with 'gem install gosu'
+  Chingu      - Install with 'gem install chingu'
+  Texplay     - Install with 'gem install texplay'
+
+
+== Tools Used
+  www.libgosu.org for OpenGL accelerated 2D gfx
+  www.freesound.org for sound
+  Inkscape and Gimp for GFX
+  SCiTE for editing

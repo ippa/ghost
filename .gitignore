@@ -1,0 +1,6 @@
+Thumbs.db
+lib
+pkg
+.gem
+.git
+*.svg
