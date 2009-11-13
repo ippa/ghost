@@ -18,6 +18,11 @@ class Screen < Chingu::GameState
     
     @sky1 = Color.new(0xFF510009)
     @sky2 = Color.new(0xFF111111)
+
+    @fog_amount = 15
+    @fog_amount.times do |nr|
+      Fog.create(:x => (nr-1) * ($window.width/@fog_amount) - 100, :y => $window.height - 70 - rand(50))
+    end
     
     load_game_objects
   end
@@ -46,6 +51,9 @@ class Screen < Chingu::GameState
   def update
     super
     
+    Fog.destroy_if { |fog| fog.right < 0 || fog.x > @width}
+    Fog.create(:x => @width, :y => @height - 70 - rand(50)) if Fog.size < @fog_amount
+      
     $window.caption = "Ghost. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
     if @player.x >= @width
@@ -72,6 +80,23 @@ class Screen < Chingu::GameState
     
     super    
   end
+end
+
+class Fog < GameObject
+  has_trait :velocity
+  def initialize(options)
+    super
+    self.rotation_center(:top_left)
+    @image = rand(5) < 4 ? Image["cloud.png"] : Image["cloud2.png"]
+    @color.alpha = 5 + rand(15)
+    @velocity_x = -rand/10 + rand/10
+    self.factor = 1 + rand*2
+  end
+  
+  def right
+    @x + @image.width * @factor
+  end
+  
 end
 
 class Screen1 < Screen
