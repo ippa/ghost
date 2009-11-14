@@ -7,7 +7,8 @@ class Screen < Chingu::GameState
     self.input = { :e => Chingu::GameStates::Edit }
     
     @image ||= options[:image]
-    @player ||= $window.player
+    @clouds = options[:clouds] || 15
+    @mode = options[:mode] || :dead
     
     @background = GameObject.create(:image => @image, :zorder => 10)
     @background.rotation_center(:top_left)
@@ -15,13 +16,19 @@ class Screen < Chingu::GameState
     @map = Hash.new
     @width = 800
     @height = 600
+        
+    if @mode == :alive
+      @player = AlivePlayer.create(:x => 330, :y => 500, :zorder => 100)
+      @sky1 = Color.new(0xFFACFFEC)
+      @sky2 = Color.new(0xFF0012FF)     
+    else
+      @player = Player.create(:x => 230, :y => 380, :zorder => 100)
+      @sky1 = Color.new(0xFF510009)
+      @sky2 = Color.new(0xFF111111)      
+    end
     
-    @sky1 = Color.new(0xFF510009)
-    @sky2 = Color.new(0xFF111111)
-
-    @fog_amount = 15
-    @fog_amount.times do |nr|
-      Fog.create(:x => (nr-1) * ($window.width/@fog_amount) - 100, :y => $window.height - 70 - rand(50))
+    @clouds.times do |nr|
+      Fog.create(:x => (nr-1) * ($window.width/@clouds) - 100, :y => $window.height - 70 - rand(50))
     end
     
     load_game_objects
@@ -52,7 +59,7 @@ class Screen < Chingu::GameState
     super
     
     Fog.destroy_if { |fog| fog.right < 0 || fog.x > @width}
-    Fog.create(:x => @width, :y => @height - 70 - rand(50)) if Fog.size < @fog_amount
+    Fog.create(:x => @width, :y => @height - 70 - rand(50)) if Fog.size < @clouds
       
     $window.caption = "Ghost. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
@@ -70,15 +77,15 @@ class Screen < Chingu::GameState
       switch_game_state(@map[:up])
     end
     
-    @player.each_bounding_box_collision(Enemy) do |me, enemy|
-      @player.zap   if enemy.is_a? Spark
-    end
+    #@player.each_bounding_box_collision(Enemy) do |me, enemy|
+    #  @player.zap   if enemy.is_a? Spark
+    #end
   end
   
   def draw
     fill_gradient(:from => @sky2, :to => @sky1, :zorder => -1)
     
-    super    
+    super
   end
 end
 
@@ -89,25 +96,49 @@ class Fog < GameObject
     self.rotation_center(:top_left)
     @image = rand(5) < 4 ? Image["cloud.png"] : Image["cloud2.png"]
     @color.alpha = 5 + rand(15)
-    @velocity_x = -rand/10 + rand/10
+    @velocity_x = -rand/5 + rand/5
     self.factor = 1 + rand*2
   end
   
   def right
-    @x + @image.width * @factor
+    @x + @image.width * @factor_x
   end
   
+end
+
+
+class Alive1 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen1_alive.png", :clouds => 0, :mode => :alive))
+    @map[:up] = Screen1
+    
+    @truck = GameObject.create(:x => $window.width, :y => $window.height-70, :image => Image["truck.png"], :rotation_center => :left_bottom)
+    @truck_endpoint = $window.width - 150
+    @player_hit = false
+  end
+  
+  def update
+    super 
+        
+    if @player.x > @truck_endpoint && @truck.x > @truck_endpoint
+      @truck.x -= 10
+    end
+    
+    if @truck.x <= @truck_endpoint && @player_hit == false
+      #puts "Hit by truck!"
+      @player_hit = true
+      @player.velocity_x  = -10
+      @player.velocity_y  = -10
+      @player.rotation_rate = 8
+    end
+  end
 end
 
 class Screen1 < Screen
   def initialize(options = {})
     super(options.merge(:image => "screen1.png"))
     @map[:right] = Screen2
-  end
-  
-  #def setup
-  #  @player.unpause!
-  #end
+  end  
 end
 
 

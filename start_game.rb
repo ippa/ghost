@@ -2,10 +2,12 @@
 # 
 #
 require 'rubygems'
-require 'opengl'
-require 'gosu'
+require 'gosu'      # www.libgosu.org - 2D ruby/c++ opengl accerated game framework
 require 'texplay'
 
+#
+# Try to load a local version of Chingu. On fail, load the rubygem.
+#
 begin
   require '../chingu/lib/chingu'
 rescue LoadError
@@ -18,15 +20,14 @@ include Chingu
 require_all 'src/'
 
 class Game < Chingu::Window
-  attr_reader :player
+  attr_accessor :player
   
   def initialize
     super(800, 600)
     self.input = { :esc => :close }
-    @player = Player.create(:x => 230, :y => 400, :zorder => 100)
-    
-    push_game_state(Screen1.new)
+    push_game_state(Alive1.new)
   end
+
 end
 
 Game.new.show
