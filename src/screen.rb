@@ -22,7 +22,7 @@ class Screen < Chingu::GameState
       @sky1 = Color.new(0xFFACFFEC)
       @sky2 = Color.new(0xFF0012FF)     
     else
-      @player = Player.create(:x => 230, :y => 380, :zorder => 100)
+      @player = Player.create(:x => 230, :y => 180, :zorder => 100)
       @sky1 = Color.new(0xFF510009)
       @sky2 = Color.new(0xFF111111)      
     end
@@ -151,17 +151,77 @@ class Screen2 < Screen
   def initialize(options = {})
     super(options.merge(:image => "screen2.png"))
     @map[:left] = Screen1
-    @map[:right] = Screen2
+    @map[:right] = Screen3
   end  
 end
 
 
 class Screen3 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen3.bmp"))
+    super(options.merge(:image => "screen3.png"))
     @map[:left] = Screen2
+    @map[:right] = Screen4
   end
-  
-  def setup
+end
+
+
+class Screen4 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen4.png"))
+    @map[:left] = Screen3
+    @map[:right] = Screen5
+  end
+end
+
+
+class Screen5 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen5.png"))
+    @map[:left] = Screen4
+    @map[:right] = Screen6
+  end
+end
+
+
+class Screen6 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen6.png"))
+    @map[:left] = Screen5
+    @map[:right] = Screen7
+  end
+end
+
+
+class Screen7 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen7.png"))
+    @map[:left] = Screen6
+    @map[:right] = Screen8
+  end
+end
+
+
+class Screen8 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen8.png"))
+    @map[:left] = Screen7
+    @map[:right] = Screen9
+  end
+end
+
+
+class Screen9 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen9.png"))
+    @map[:left] = Screen8
+    @map[:right] = Screen10
+  end
+end
+
+class Screen10 < Screen
+  def initialize(options = {})
+    super(options.merge(:image => "screen10.png"))
+    @map[:left] = Screen9
+    @map[:right] = Screen11
   end
 end

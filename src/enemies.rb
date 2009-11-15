@@ -14,7 +14,7 @@ class EnemyGhost < Chingu::GameObject
   
   def update
     @x -= 1
-    @last_direction =# :left
+    @last_direction = :left
     @factor_x = (@last_direction == :right) ? 1 : -1     
   end
   
