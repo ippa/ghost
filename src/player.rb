@@ -3,60 +3,68 @@ class Player < Chingu::GameObject
     attr_reader :max_steps
     
     def initialize(options)
-        super
+      super
         
-        @max_steps = 10
-        @speed = 2
+      @max_steps = 30
+      @speed = 2
         
-        @image = Image["player.png"]
-        @color.alpha = 100
-        @status = :dead
-        @dtheta = 0
-        @y_anchor = @y
+      @image = Image["player.png"]
+      @color.alpha = 100
+      @status = :dead
+      @dtheta = 0
+      @y_anchor = @y
         
         
-        self.input = {  :holding_left => :left, 
-            :holding_right => :right, 
-            :holding_up => :up,
-            :holding_down => :down,
-        }
+      self.input = {  :holding_left => :left, 
+          :holding_right => :right, 
+          :holding_up => :up,
+          :holding_down => :down,
+      }
         
-        self.rotation_center(:center_bottom)
+      #@bounding_box = Rect.new(@x, @y, @image.width, @image.height)
+      @bounding_box = Rect.new(@x-@image.width/2, @y-@image.width/2, @image.width, @image.height)
         
+      self.rotation_center(:center)
+    end
+      
+    def hit_by(object)
+      @color.alpha = 50
+      during(500) { @x -= 3; self.factor += 0.01 }.then { self.factor = 1; @color.alpha = 100}      
     end
     
     def up
-        @velocity_y = -@speed
-        handle_collision
-        @y_anchor += @velocity_y
+      @velocity_y = -@speed
+      handle_collision
+      @y_anchor += @velocity_y
     end
 
     def down
-        @velocity_y = @speed
-        handle_collision
-        @y_anchor += @velocity_y
+      @velocity_y = @speed
+      handle_collision
+      @y_anchor += @velocity_y
     end
 
     def left
-        @velocity_x = -@speed
-        handle_collision
+      @velocity_x = -@speed
+      handle_collision
     end
     
     def right
-        @velocity_x = @speed
-        handle_collision    
+      @velocity_x = @speed
+      handle_collision    
     end
     
     def handle_collision
-        if $window.current_game_state.collision?(@x, @y)
-            steps = $window.current_game_state.distance_to_surface(@x, @y)
-            if steps  < @max_steps
-                @y -= steps
-                stop
-            else
-                @x = @last_x
-            end
+      if $window.current_game_state.collision?(@bounding_box.centerx, @bounding_box.bottom)
+        steps = $window.current_game_state.distance_to_surface(@bounding_box.centerx, @bounding_box.bottom)
+        
+        if steps  < @max_steps
+          @y -= steps
+          @y_anchor = @y
+        else
+          @x = @last_x
         end
+      end
     end
     
     def update
@@ -64,25 +72,31 @@ class Player < Chingu::GameObject
         @velocity_x *= 0.90
         @velocity_y *= 0.90
         
+        @last_x, @last_y = @x, @y   # Move this to trait "velocity"
+        
         #
         # Make the ghost "float" up and down when idle
         #
-      #
+        #
         if @velocity_x.abs < 0.1 and @velocity_y.abs < 0.1
-            @dtheta = (@dtheta + 5) % 360
-            @dy = 5 * Math::sin(@dtheta / 180.0 * Math::PI)
-            @y = @y_anchor + @dy
+          @dtheta = (@dtheta + 5) % 360
+          @dy = 5 * Math::sin(@dtheta / 180.0 * Math::PI)
+          @y = @y_anchor + @dy
         else
-            @dtheta = 0
-            @y_anchor = @y
+          @dtheta = 0
+          @y_anchor = @y
         end
         
-        @last_x, @last_y = @x, @y   # Move this to trait "velocity"
-        super
+        @bounding_box.x = @x - @image.width/2
+        @bounding_box.y = @y - @image.width/2
+
         handle_collision
-        
+                
         # Make sure player-image is turned correctly, use GOSUs draw_rot argument factor_x to achieve this
-        @factor_x = (@velocity_x >= 0) ? 1 : -1 
+        # Dont modify when scaling
+        if @factor_x.abs == 1
+          @factor_x = (@velocity_x >= 0) ? 1 : -1 
+        end
     end  
 end
 

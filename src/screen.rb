@@ -6,26 +6,20 @@ class Screen < Chingu::GameState
     
     self.input = { :e => Chingu::GameStates::Edit }
     
-    @image ||= options[:image]
+    @image = options[:image] || "#{self.class.to_s.downcase}.png"
     @clouds = options[:clouds] || 15
-    @mode = options[:mode] || :dead
+    @enter_x = options[:enter_x] || 230
+    @enter_y = options[:enter_y] || 380
     
-    @background = GameObject.create(:image => @image, :zorder => 10)
-    @background.rotation_center(:top_left)
+    @background = GameObject.create(:image => @image, :zorder => 10, :rotation_center => :top_left)
     
-    @map = Hash.new
+    @game_states = Hash.new
     @width = 800
     @height = 600
         
-    if @mode == :alive
-      @player = AlivePlayer.create(:x => 330, :y => 500, :zorder => 100)
-      @sky1 = Color.new(0xFFACFFEC)
-      @sky2 = Color.new(0xFF0012FF)     
-    else
-      @player = Player.create(:x => 230, :y => 180, :zorder => 100)
-      @sky1 = Color.new(0xFF510009)
-      @sky2 = Color.new(0xFF111111)      
-    end
+    @player = Player.create(:x => @enter_x, :y => @enter_y, :zorder => 100)
+    @sky1 = Color.new(0xFF510009)
+    @sky2 = Color.new(0xFF111111)
     
     @clouds.times do |nr|
       Fog.create(:x => (nr-1) * ($window.width/@clouds) - 100, :y => $window.height - 70 - rand(50))
@@ -64,164 +58,128 @@ class Screen < Chingu::GameState
     $window.caption = "Ghost. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
     if @player.x >= @width
-      switch_game_state(@map[:right])
-      @player.x = 1
+      switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))
     elsif @player.x < 0
-      switch_game_state(@map[:left])
-      @player.x = @width - 1
+      switch_game_state(@game_states[:left].new(:enter_x => @width-1, :enter_y => @player.y))
     elsif @player.y > @height
-      @player.y = 1
-      switch_game_state(@map[:down])
+      switch_game_state(@game_states[:down].new(:enter_x => @player.x, :enter_y => 1))
     elsif @player.y < 0
-      @player.y = @height - 1
-      switch_game_state(@map[:up])
+      switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))
     end
     
-    #@player.each_bounding_box_collision(Enemy) do |me, enemy|
-    #  @player.zap   if enemy.is_a? Spark
-    #end
+    @player.each_bounding_box_collision([EnemyGhost, EnemyGhostBullet]) do |me, enemy|
+      @player.hit_by(enemy)
+      enemy.hit_by(@player) if enemy.is_a? EnemyGhostBullet
+    end
   end
   
   def draw
-    fill_gradient(:from => @sky2, :to => @sky1, :zorder => -1)
-    
+    fill_gradient(:from => @sky2, :to => @sky1, :zorder => -1)    
     super
   end
-end
-
-class Fog < GameObject
-  has_trait :velocity
-  def initialize(options)
-    super
-    self.rotation_center(:top_left)
-    @image = rand(5) < 4 ? Image["cloud.png"] : Image["cloud2.png"]
-    @color.alpha = 5 + rand(15)
-    @velocity_x = -rand/2 + rand/2
-    self.factor = 1 + rand*2
-  end
-  
-  def right
-    @x + @image.width * @factor_x
-  end
   
 end
 
-
-class Alive1 < Screen
-  def initialize(options = {})
-    super(options.merge(:image => "screen1_alive.png", :clouds => 0, :mode => :alive))
-    @map[:up] = Screen1
-    
-    @truck = GameObject.create(:x => $window.width, :y => $window.height-70, :image => Image["truck.png"], :rotation_center => :left_bottom)
-    @truck_endpoint = $window.width - 150
-    @player_hit = false
-  end
-  
-  def update
-    super 
-        
-    if @player.x > @truck_endpoint && @truck.x > @truck_endpoint
-      @truck.x -= 10
-    end
-    
-    if @truck.x <= @truck_endpoint && @player_hit == false
-      #puts "Hit by truck!"
-      @player_hit = true
-      @player.velocity_x  = -10
-      @player.velocity_y  = -10
-      @player.rotation_rate = 8
-    end
-  end
-end
 
 class Screen1 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen1.png"))
-    @map[:right] = Screen2
-  end
-  
-  def setup
-    EnemyGhost.create(:x => @width - 20, :y => 200)
-  end
-  
+    super
+    @game_states[:right] = Screen2
+  end  
 end
-
 
 class Screen2 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen2.png"))
-    @map[:left] = Screen1
-    @map[:right] = Screen3
-  end  
+    super
+    @game_states[:left] = Screen1
+    @game_states[:right] = Screen3
+  end
+
+  def setup
+    EnemyGhost.create(:x => @width - 20, :y => 200)
+    EnemyGhost.create(:x => @width - 20, :y => 300)    
+  end
 end
 
 
 class Screen3 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen3.png"))
-    @map[:left] = Screen2
-    @map[:right] = Screen4
+    super
+    @game_states[:left] = Screen2
+    @game_states[:right] = Screen4
   end
+  
+  def setup
+    EnemyGhost.create(:x => @width - 20, :y => 100)
+    EnemyGhost.create(:x => @width - 60, :y => 200)
+    EnemyGhost.create(:x => @width - 100, :y => 300)    
+  end  
 end
 
 
 class Screen4 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen4.png"))
-    @map[:left] = Screen3
-    @map[:right] = Screen5
+    super
+    @game_states[:left] = Screen3
+    @game_states[:right] = Screen5
   end
+  
+  def setup
+    EnemyGhost.create(:x => @width - 100, :y => 50)
+    EnemyGhost.create(:x => @width - 50, :y => 100)
+  end  
+  
 end
 
 
 class Screen5 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen5.png"))
-    @map[:left] = Screen4
-    @map[:right] = Screen6
+    super
+    @game_states[:left] = Screen4
+    @game_states[:right] = Screen6
   end
 end
 
 
 class Screen6 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen6.png"))
-    @map[:left] = Screen5
-    @map[:right] = Screen7
+    super
+    @game_states[:left] = Screen5
+    @game_states[:right] = Screen7
   end
 end
 
 
 class Screen7 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen7.png"))
-    @map[:left] = Screen6
-    @map[:right] = Screen8
+    super
+    @game_states[:left] = Screen6
+    @game_states[:right] = Screen8
   end
 end
 
 
 class Screen8 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen8.png"))
-    @map[:left] = Screen7
-    @map[:right] = Screen9
+    super
+    @game_states[:left] = Screen7
+    @game_states[:right] = Screen9
   end
 end
 
 
 class Screen9 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen9.png"))
-    @map[:left] = Screen8
-    @map[:right] = Screen10
+    super
+    @game_states[:left] = Screen8
+    @game_states[:right] = Screen10
   end
 end
 
 class Screen10 < Screen
   def initialize(options = {})
-    super(options.merge(:image => "screen10.png"))
-    @map[:left] = Screen9
-    @map[:right] = Screen11
+    super
+    @game_states[:left] = Screen9
+    @game_states[:right] = Screen11
   end
 end

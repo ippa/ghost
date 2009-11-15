@@ -26,8 +26,8 @@ class Game < Chingu::Window
     super(800, 600)
     self.input = { :esc => :close }
     
-    push_game_state(Screen1.new)
-    #push_game_state(Alive1.new)
+    switch_game_state(Screen1.new)
+    #switch_game_state(Alive1.new)
   end
 
 end
