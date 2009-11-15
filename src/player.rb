@@ -88,7 +88,6 @@ end
 
 
 
-
 class AlivePlayer < Chingu::GameObject
     has_traits :velocity, :effect, :collision_detection, :timer
     attr_reader :max_steps

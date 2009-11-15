@@ -1,5 +1,5 @@
 class Screen < Chingu::GameState
-  attr_reader :map
+  attr_reader :map, :player
   
   def initialize(options = {})
     super
@@ -96,7 +96,7 @@ class Fog < GameObject
     self.rotation_center(:top_left)
     @image = rand(5) < 4 ? Image["cloud.png"] : Image["cloud2.png"]
     @color.alpha = 5 + rand(15)
-    @velocity_x = -rand/5 + rand/5
+    @velocity_x = -rand/2 + rand/2
     self.factor = 1 + rand*2
   end
   
@@ -138,7 +138,12 @@ class Screen1 < Screen
   def initialize(options = {})
     super(options.merge(:image => "screen1.png"))
     @map[:right] = Screen2
-  end  
+  end
+  
+  def setup
+    EnemyGhost.create(:x => @width - 20, :y => 200)
+  end
+  
 end
 
 
