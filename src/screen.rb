@@ -180,6 +180,6 @@ class Screen10 < Screen
   def initialize(options = {})
     super
     @game_states[:left] = Screen9
-    @game_states[:right] = Screen11
+    @game_states[:right] = Screen10
   end
 end
