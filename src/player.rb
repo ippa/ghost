@@ -67,12 +67,14 @@ class Player < Chingu::GameObject
         #
         # Make the ghost "float" up and down when idle
         #
+      #
         if @velocity_x.abs < 0.1 and @velocity_y.abs < 0.1
             @dtheta = (@dtheta + 5) % 360
             @dy = 5 * Math::sin(@dtheta / 180.0 * Math::PI)
             @y = @y_anchor + @dy
         else
-           # @dtheta = 0
+            @dtheta = 0
+            @y_anchor = @y
         end
         
         @last_x, @last_y = @x, @y   # Move this to trait "velocity"
