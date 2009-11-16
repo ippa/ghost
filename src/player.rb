@@ -17,10 +17,10 @@ class Player < Chingu::GameObject
       @cooling_down = false
         
       self.input = {
-        :holding_left => :left, 
-        :holding_right => :right, 
-        :holding_up => :up,
-        :holding_down => :down,
+        #:holding_left => :left, 
+        #:holding_right => :right, 
+        #:holding_up => :up,
+        #:holding_down => :down,
         :space => :fire
       }
         
@@ -84,6 +84,13 @@ class Player < Chingu::GameObject
     end
     
     def update
+      
+        left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
+        right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
+        up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
+        down  if $window.button_down? Button::KbDown  or $window.button_down? Button::GpDown
+
+      
         # Slow down the playermovement to a halt when dead
         @velocity_x *= 0.90 if @velocity_x.abs <= @speed
         @velocity_y *= 0.90 if @velocity_y.abs <= @speed
