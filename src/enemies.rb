@@ -8,13 +8,13 @@ class EnemyGhost < Chingu::GameObject
     @type = options[:type] || 1
     @image = Image["enemy_ghost.png"]
     @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
-    self.rotation_center(:center)
+    rotation_center(:center)
     
     
     
     @red = Color.new(0xFFFF0000)
     @green = Color.new(0xFF00FF00)
-    @blue = Color.new(0xFF0000FF)
+    @blue = Color.new(0xFFAA00AA)
     
     #
     # We have 3 different kind of ghosts, defaults to type #1
@@ -29,7 +29,7 @@ class EnemyGhost < Chingu::GameObject
       @fire_rate = 1500
     elsif @type == 3
       @color = @blue.dup
-      @speed = 3
+      @speed = 2
       @fire_rate = 1000
     end
     
@@ -82,10 +82,10 @@ class EnemySpirit < Chingu::GameObject
       @speed = 1
       @fire_rate = 2000
     elsif @type == 2
-      @speed = 2
+      @speed = 1
       @fire_rate = 1500
     elsif @type == 3
-      @speed = 3
+      @speed = 1
       @fire_rate = 1000
     end
     
@@ -109,6 +109,17 @@ class EnemySpirit < Chingu::GameObject
   def fire
     Sound["swosh.wav"].play
     EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y)
+    
+    if @type == 2
+      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -150)
+      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => 150)
+    elsif @type == 3
+      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -250)
+      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -150)
+      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => 150)
+      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => 250)
+    end
+
   end
   
   def hit_by(object)
@@ -127,13 +138,12 @@ class EnemyGhostBullet < Chingu::GameObject
   def initialize(options)
     super
   
+    @y_offset = options[:y_offset] || 0
+    
     # velocity_x and velocity_y will be read by trait 'velocity' and applied to x and y
     self.velocity_x = ($window.current_game_state.player.x - @x) / 100
-    self.velocity_y = ($window.current_game_state.player.y - @y) / 100
-    
-    puts self.velocity_x
-    puts self.velocity_y
-    
+    self.velocity_y = ($window.current_game_state.player.y - @y + @y_offset) / 100
+        
     @image = Image["enemy_ghost_bullet.png"]
     @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
     self.rotation_center(:center)

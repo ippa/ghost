@@ -11,7 +11,11 @@ class Alive1 < Chingu::GameState
 
     @player = AlivePlayer.create(:x => 330, :y => 500, :zorder => 100)
     @sky1 = Color.new(0xFFACFFEC)
-    @sky2 = Color.new(0xFF0012FF)         
+    @sky2 = Color.new(0xFF0012FF)
+    
+    # Cache these 2 soundbits by accessing them once.
+    Sound["skid.ogg"]
+    Sound["hit.wav"]
   end
 
   def collision?(x, y)
@@ -37,7 +41,7 @@ class Alive1 < Chingu::GameState
       
       @truck.x -= 10
     end
-    
+        
     if @truck.x <= @truck_endpoint && @player_hit == false
       Sound["hit.wav"].play
       

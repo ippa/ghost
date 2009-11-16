@@ -1,10 +1,12 @@
 class Screen < Chingu::GameState
+  has_trait :timer
   attr_reader :map, :player
+  
   
   def initialize(options = {})
     super
     
-    self.input = { :e => Chingu::GameStates::Edit }
+    self.input = { :e => Chingu::GameStates::Edit, :f1 => :next_screen, :a => Screen15 }
     
     @image = options[:image] || "#{self.class.to_s.downcase}.png"
     @clouds = options[:clouds] || 15
@@ -49,6 +51,10 @@ class Screen < Chingu::GameState
     return steps
   end
   
+  def next_screen
+    switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))
+  end
+  
   def update
     super
     
@@ -64,7 +70,8 @@ class Screen < Chingu::GameState
     elsif @player.y > @height
       switch_game_state(@game_states[:down].new(:enter_x => @player.x, :enter_y => 1))
     elsif @player.y < 0
-      switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))
+      # switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))
+      @player.y = 0
     end
     
     @player.each_bounding_box_collision([EnemyGhost, EnemyGhostBullet]) do |me, enemy|
@@ -97,7 +104,7 @@ class Screen1 < Screen
   end
   
   def setup
-    EnemySpirit.create(:x => 400)
+    #EnemySpirit.create(:x => 400)
   end
 end
 
@@ -109,9 +116,10 @@ class Screen2 < Screen
   end
 
   def setup
-    #EnemySpirit.create(:x => 600)
-    #EnemyGhost.create(:x => @width - 20, :y => 200)
-    #EnemyGhost.create(:x => @width - 20, :y => 300, :type => 2)    
+    5.times do |nr|
+      after(nr * 400) { EnemyGhost.create(:x => @width, :y => (nr+1) * 50 + rand(10)) }
+    end
+    EnemySpirit.create(:x => 600)
   end
 end
 
@@ -125,7 +133,7 @@ class Screen3 < Screen
   
   def setup
     EnemyGhost.create(:x => @width - 20, :y => 100)
-    EnemyGhost.create(:x => @width - 60, :y => 200)
+    EnemyGhost.create(:x => @width - 60, :y => 200, :type => 2)
     EnemyGhost.create(:x => @width - 100, :y => 300)    
   end  
 end
@@ -139,9 +147,10 @@ class Screen4 < Screen
   end
   
   def setup
-    EnemyGhost.create(:x => @width - 100, :y => 50)
-    EnemyGhost.create(:x => @width - 50, :y => 100)
-  end  
+    EnemyGhost.create(:x => @width, :y => 100)
+    EnemyGhost.create(:x => @width - 20, :y => 200, :type => 2)
+    EnemyGhost.create(:x => @width - 40, :y => 300, :type => 3)
+  end
   
 end
 
@@ -152,6 +161,10 @@ class Screen5 < Screen
     @game_states[:left] = Screen4
     @game_states[:right] = Screen6
   end
+  
+  def setup
+    every(1500) { EnemyGhost.create(:x => @width, :y => 50 + rand(200)) }
+  end
 end
 
 
@@ -160,6 +173,10 @@ class Screen6 < Screen
     super
     @game_states[:left] = Screen5
     @game_states[:right] = Screen7
+  end
+  
+  def setup
+    every(2000) { EnemyGhost.create(:x => @width, :y => 50 + rand(200), :type => 2) }
   end
 end
 
@@ -170,6 +187,14 @@ class Screen7 < Screen
     @game_states[:left] = Screen6
     @game_states[:right] = Screen8
   end
+  
+  def setup
+    EnemyGhost.create(:x => @width , :y => 50, :tpye => 2)
+    EnemyGhost.create(:x => @width - 100, :y => 100, :tpye => 3)
+    EnemyGhost.create(:x => @width - 100, :y => 150, :tpye => 3)
+    EnemyGhost.create(:x => @width - 100, :y => 200, :tpye => 3)
+    EnemyGhost.create(:x => @width - 100, :y => 300, :tpye => 2)
+  end  
 end
 
 
@@ -190,8 +215,9 @@ class Screen9 < Screen
   end
   
   def setup
-    EnemySpirit.create(:x => 200)
-    EnemySpirit.create(:x => 300)
+    EnemySpirit.create(:x => @width - 50, :type => 1)
+    EnemySpirit.create(:x => @width - 100, :type => 2)
+    every(2000) { EnemySpirit.create(:x => rand(8) * 100, :type => 1) }
   end
 
 end
@@ -200,12 +226,119 @@ class Screen10 < Screen
   def initialize(options = {})
     super
     @game_states[:left] = Screen9
-    @game_states[:right] = Screen10
+    @game_states[:right] = Screen11
   end
   
   def setup
-    EnemySpirit.create(:x => 100)
-    EnemySpirit.create(:x => 200)
-    EnemySpirit.create(:x => 300)
+    EnemySpirit.create(:x => @width - 20, :type => 1)
+    EnemySpirit.create(:x => @width - 200, :type => 3)
+    every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 2) }
   end  
+end
+
+
+class Screen11 < Screen
+  def initialize(options = {})
+    super
+    @game_states[:left] = Screen10
+    @game_states[:right] = Screen12
+  end
+  
+  def setup
+    EnemySpirit.create(:x => @width - 20, :type => 2)
+    EnemySpirit.create(:x => @width - 100, :type => 2)
+    EnemySpirit.create(:x => @width - 200, :type => 3)
+    every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 3) }
+  end  
+end
+
+
+class Screen12 < Screen
+  def initialize(options = {})
+    super
+    @game_states[:left] = Screen11
+    @game_states[:right] = Screen13
+  end
+  
+  def setup
+  end  
+end
+
+
+class Screen13 < Screen
+  def initialize(options = {})
+    super
+    @game_states[:left] = Screen12
+    @game_states[:right] = Screen14
+  end
+  
+  def setup
+    EnemyGhost.create(:x => @width-20, :y => rand(@height)-100, :type => 3)
+    EnemyGhost.create(:x => @width-50, :y => rand(@height)-100, :type => 3)
+    EnemyGhost.create(:x => @width-100, :y => rand(@height)-100, :type => 3)
+    every(2000) { EnemyGhost.create(:x => @width, :y => rand(@height)-100, :type => 3) }
+    every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 2) }
+  end  
+end
+
+
+class Screen14 < Screen
+  def initialize(options = {})
+    super
+    @game_states[:left] = Screen13
+    @game_states[:right] = Screen15
+  end
+  
+  def setup
+  end  
+end
+
+class Screen15 < Screen
+  def initialize(options = {})
+    super
+    @game_states[:left] = Screen13
+    @game_states[:right] = Screen15
+    
+    @truck = GameObject.create( :x => $window.width,
+                                :y => 300, 
+                                :image => Image["truck.png"], 
+                                :factor => 2,
+                                :rotation_center => :left_bottom, 
+                                :color => Color.new(0x99FFFFFF)
+                              )
+    @ghost = EnemyGhost.create(:x => $window.width + 50, :y => 100, :type => 3, :paused => true)
+    
+    @truck_endpoint = $window.width - 250
+    @player_hit = false
+  end
+  
+  def update
+    
+    if @player.x > @truck_endpoint && @truck.x > @truck_endpoint
+      Sound["skid.ogg"].play  if @truck.x == $window.width
+      
+      @ghost.unpause!
+      
+      @truck.x -= 10
+      @ghost.x -= 10
+    end
+        
+    if @truck.x <= @truck_endpoint && @player_hit == false
+      Sound["hit.wav"].play
+      
+      @player.input = nil
+      @player_hit = true
+      @player.velocity_x  = -6
+      @player.velocity_y  = -4
+      @player.rotation_rate = 8
+      switch_game_state(GameStates::FadeTo.new(Alive1, :speed => 2))
+      return
+    end
+    
+    #if @player_hit && @player.outside_window?
+    #if @player_hit && (@player.y < 10 || @player.x < 10)
+    #end
+    
+    super 
+  end
 end

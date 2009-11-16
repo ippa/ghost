@@ -1,12 +1,12 @@
 class Player < Chingu::GameObject
-    has_traits :velocity, :collision_detection, :timer
+    has_traits :velocity, :collision_detection, :timer, :effect
     attr_reader :max_steps
     
     def initialize(options)
       super
         
       @max_steps = 30
-      @speed = 2
+      @speed = 3
         
       @image = Image["player.png"]
       self.alpha = 100
@@ -17,11 +17,11 @@ class Player < Chingu::GameObject
       @cooling_down = false
         
       self.input = {
-          :holding_left => :left, 
-          :holding_right => :right, 
-          :holding_up => :up,
-          :holding_down => :down,
-          :space => :fire
+        :holding_left => :left, 
+        :holding_right => :right, 
+        :holding_up => :up,
+        :holding_down => :down,
+        :space => :fire
       }
         
       #@bounding_box = Rect.new(@x, @y, @image.width, @image.height)
@@ -39,7 +39,7 @@ class Player < Chingu::GameObject
     def fire
       return if @cooling_down
       @cooling_down = true
-      after(300) { @cooling_down = false }
+      after(500) { @cooling_down = false }
       
       Sound["swosh.wav"].play
       Bullet.create(:x => @x, :y => @y)
@@ -69,6 +69,7 @@ class Player < Chingu::GameObject
     end
     
     def handle_collision
+      if $window.current_game_state.respond_to?("collision?")
       if $window.current_game_state.collision?(@bounding_box.centerx, @bounding_box.bottom)
         steps = $window.current_game_state.distance_to_surface(@bounding_box.centerx, @bounding_box.bottom)
         
@@ -79,12 +80,13 @@ class Player < Chingu::GameObject
           @x = @last_x
         end
       end
+      end
     end
     
     def update
         # Slow down the playermovement to a halt when dead
-        @velocity_x *= 0.90
-        @velocity_y *= 0.90
+        @velocity_x *= 0.90 if @velocity_x.abs <= @speed
+        @velocity_y *= 0.90 if @velocity_y.abs <= @speed
         
         @last_x, @last_y = @x, @y   # Move this to trait "velocity"
         
@@ -158,6 +160,7 @@ class AlivePlayer < Chingu::GameObject
         @bounding_box = Rect.new(@x, @y, @image.width, @image.height)
         @status = :default
         @last_direction = :left
+        @factor_x - 1
         self.acceleration_y = 0.3 # gravity!
         self.input = { :holding_left => :left, :holding_right => :right }    
     end
