@@ -32,8 +32,19 @@ class Player < Chingu::GameObject
       
     def hit_by(object)
       self.alpha = 50
+      Sound["swing.wav"].play(0.4)
       during(500) { @x -= 3; self.factor += 0.01 }.then { self.factor = 1; self.alpha = 100}      
     end
+    
+    def fire
+      return if @cooling_down
+      @cooling_down = true
+      after(300) { @cooling_down = false }
+      
+      Sound["swosh.wav"].play
+      Bullet.create(:x => @x, :y => @y)
+    end
+    
     
     def up
       @velocity_y = -@speed
@@ -100,14 +111,6 @@ class Player < Chingu::GameObject
         if @factor_x.abs == 1
           @factor_x = (@velocity_x >= 0) ? 1 : -1 
         end
-    end
-
-    def fire
-      return if @cooling_down
-      @cooling_down = true
-      after(300) { @cooling_down = false }
-      
-      Bullet.create(:x => @x, :y => @y)
     end
 end
 

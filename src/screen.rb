@@ -93,6 +93,7 @@ class Screen1 < Screen
   def initialize(options = {})
     super
     @game_states[:right] = Screen2
+    Song["wind.ogg"].play(true)
   end
   
   def setup
@@ -108,9 +109,9 @@ class Screen2 < Screen
   end
 
   def setup
-    EnemySpirit.create(:x => 600)
-    EnemyGhost.create(:x => @width - 20, :y => 200)
-    EnemyGhost.create(:x => @width - 20, :y => 300, :type => 2)    
+    #EnemySpirit.create(:x => 600)
+    #EnemyGhost.create(:x => @width - 20, :y => 200)
+    #EnemyGhost.create(:x => @width - 20, :y => 300, :type => 2)    
   end
 end
 

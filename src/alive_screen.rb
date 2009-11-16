@@ -33,23 +33,38 @@ class Alive1 < Chingu::GameState
     super 
         
     if @player.x > @truck_endpoint && @truck.x > @truck_endpoint
+      Sound["skid.ogg"].play  if @truck.x == $window.width
+      
       @truck.x -= 10
     end
     
     if @truck.x <= @truck_endpoint && @player_hit == false
-      #puts "Hit by truck!"
+      Sound["hit.wav"].play
+      
       @player_hit = true
       @player.velocity_x  = -10
       @player.velocity_y  = -10
       @player.rotation_rate = 8
     end
     
-    switch_game_state(Screen1) if @player.outside_window?
+    switch_game_state(Funeral) if @player.outside_window?
   end
   
   def draw
     fill_gradient(:from => @sky2, :to => @sky1, :zorder => -1)    
     super
   end
+  
+end
+
+
+class Funeral < GameState
+  has_trait :timer
+  
+  def setup
+    Song["church.ogg"].play
+    after(6000) { push_game_state(GameStates::FadeTo.new(Screen1, :speed => 2)) }
+    GameObject.create(:x => $window.width/2, :y => $window.height/2, :image => "rip.png", :rotation_center => :center)
+  end  
   
 end

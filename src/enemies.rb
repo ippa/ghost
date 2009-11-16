@@ -44,10 +44,12 @@ class EnemyGhost < Chingu::GameObject
   end
   
   def fire
+    Sound["swosh.wav"].play
     bullet = EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :color => @color)
   end
   
   def hit_by(object)
+    Sound["breath.wav"].play
     during(250) { self.factor_y += 0.03; self.alpha -= 1; }.then { destroy }
   end  
   
@@ -97,10 +99,12 @@ class EnemySpirit < Chingu::GameObject
   end
   
   def fire
+    Sound["swosh.wav"].play
     EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y)
   end
   
   def hit_by(object)
+    Sound["breath.wav"].play
     during(250) { self.factor_y += 0.03; self.alpha -= 1; }.then { destroy }
   end  
   
