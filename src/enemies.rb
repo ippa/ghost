@@ -65,6 +65,11 @@ class EnemySpirit < Chingu::GameObject
     
     @type = options[:type] || 1
     @y = options[:y] || $window.height
+    @x_anchor = @x
+    @dtheta = rand(360)
+
+    # amplitude of sine wave
+    @amp = rand(7)
     
     @image = Image["enemy_spirit.png"]
     @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
@@ -93,6 +98,9 @@ class EnemySpirit < Chingu::GameObject
   end
   
   def update
+    @dtheta = (@dtheta + 5) % 360
+    @dx = @amp * Math::sin(@dtheta / 180.0 * Math::PI)
+    @x = @x_anchor + @dx
     @y -= @speed
     @bounding_box.x = @x - @image.width/2
     @bounding_box.y = @y - @image.height/2
