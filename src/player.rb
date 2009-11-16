@@ -9,27 +9,30 @@ class Player < Chingu::GameObject
       @speed = 2
         
       @image = Image["player.png"]
-      @color.alpha = 100
+      self.alpha = 100
       @status = :dead
       @dtheta = 0
       @y_anchor = @y
+      
+      @cooling_down = false
         
-        
-      self.input = {  :holding_left => :left, 
+      self.input = {
+          :holding_left => :left, 
           :holding_right => :right, 
           :holding_up => :up,
           :holding_down => :down,
+          :space => :fire
       }
         
       #@bounding_box = Rect.new(@x, @y, @image.width, @image.height)
-      @bounding_box = Rect.new(@x-@image.width/2, @y-@image.width/2, @image.width, @image.height)
+      @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
         
       self.rotation_center(:center)
     end
       
     def hit_by(object)
-      @color.alpha = 50
-      during(500) { @x -= 3; self.factor += 0.01 }.then { self.factor = 1; @color.alpha = 100}      
+      self.alpha = 50
+      during(500) { @x -= 3; self.factor += 0.01 }.then { self.factor = 1; self.alpha = 100}      
     end
     
     def up
@@ -88,7 +91,7 @@ class Player < Chingu::GameObject
         end
         
         @bounding_box.x = @x - @image.width/2
-        @bounding_box.y = @y - @image.width/2
+        @bounding_box.y = @y - @image.height/2
 
         handle_collision
                 
@@ -97,9 +100,39 @@ class Player < Chingu::GameObject
         if @factor_x.abs == 1
           @factor_x = (@velocity_x >= 0) ? 1 : -1 
         end
-    end  
+    end
+
+    def fire
+      return if @cooling_down
+      @cooling_down = true
+      after(300) { @cooling_down = false }
+      
+      Bullet.create(:x => @x, :y => @y)
+    end
 end
 
+class Bullet < Chingu::GameObject
+  has_trait :collision_detection, :timer
+  attr_reader :bounding_box
+  
+  def initialize(options)
+    super
+    @image = Image["enemy_ghost_bullet.png"]
+    @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
+    self.rotation_center(:center)
+  end
+
+  def hit_by(object)
+    during(50) { self.factor += 1; self.alpha -= 10; }.then { destroy }
+  end
+  
+  def update
+    @x += 3
+    @bounding_box.x = @x - @image.width/2
+    @bounding_box.y = @y - @image.height/2
+  end
+  
+end
 
 
 class AlivePlayer < Chingu::GameObject

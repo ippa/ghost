@@ -55,7 +55,7 @@ class Screen < Chingu::GameState
     Fog.destroy_if { |fog| fog.right < 0 || fog.x > @width}
     Fog.create(:x => @width, :y => @height - 70 - rand(50)) if Fog.size < @clouds
       
-    $window.caption = "Ghost. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
+    $window.caption = "Ghost. Screen: #{self.class.to_s}. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
     if @player.x >= @width
       switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))
@@ -71,6 +71,14 @@ class Screen < Chingu::GameState
       @player.hit_by(enemy)
       enemy.hit_by(@player) if enemy.is_a? EnemyGhostBullet
     end
+    
+    Bullet.each_bounding_box_collision([EnemyGhost, EnemySpirit]) do |bullet, enemy|
+      enemy.hit_by(bullet)
+      bullet.hit_by(enemy)
+    end
+    
+    game_objects.destroy_if { |game_object| game_object.outside_window? }
+    
   end
   
   def draw
@@ -85,7 +93,11 @@ class Screen1 < Screen
   def initialize(options = {})
     super
     @game_states[:right] = Screen2
-  end  
+  end
+  
+  def setup
+    EnemySpirit.create(:x => 400)
+  end
 end
 
 class Screen2 < Screen
@@ -96,8 +108,9 @@ class Screen2 < Screen
   end
 
   def setup
+    EnemySpirit.create(:x => 600)
     EnemyGhost.create(:x => @width - 20, :y => 200)
-    EnemyGhost.create(:x => @width - 20, :y => 300)    
+    EnemyGhost.create(:x => @width - 20, :y => 300, :type => 2)    
   end
 end
 
@@ -174,6 +187,12 @@ class Screen9 < Screen
     @game_states[:left] = Screen8
     @game_states[:right] = Screen10
   end
+  
+  def setup
+    EnemySpirit.create(:x => 200)
+    EnemySpirit.create(:x => 300)
+  end
+
 end
 
 class Screen10 < Screen
@@ -182,4 +201,10 @@ class Screen10 < Screen
     @game_states[:left] = Screen9
     @game_states[:right] = Screen10
   end
+  
+  def setup
+    EnemySpirit.create(:x => 100)
+    EnemySpirit.create(:x => 200)
+    EnemySpirit.create(:x => 300)
+  end  
 end
