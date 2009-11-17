@@ -1,7 +1,8 @@
 = GHOST
 Entry for Mini LD #14, theme: Comedy and Tragedy
 
-URL: http://github.com/ippa/ghost
+Source:   http://github.com/ippa/ghost
+Windows:  http://ippa.se/ghost.exe
 
 == Run from source
 To run from source You need:
@@ -10,7 +11,6 @@ To run from source You need:
   Gosu        - Install with 'gem install gosu'
   Chingu      - Install with 'gem install chingu'
   Texplay     - Install with 'gem install texplay'
-
 
 == Tools Used
   www.libgosu.org for OpenGL accelerated 2D gfx
