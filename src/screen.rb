@@ -79,6 +79,11 @@ class Screen < Chingu::GameState
       enemy.hit_by(@player) if enemy.is_a? EnemyGhostBullet
     end
     
+    # banisterfiend - destroys enemy bullet on terrain collision  
+    EnemyGhostBullet.all.each { |bullet|
+     bullet.destroy if collision?(bullet.x, bullet.y)
+    }
+
     Bullet.each_bounding_box_collision([EnemyGhost, EnemySpirit]) do |bullet, enemy|
       enemy.hit_by(bullet)
       bullet.hit_by(enemy)
