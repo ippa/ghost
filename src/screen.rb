@@ -81,12 +81,12 @@ class Screen < Chingu::GameState
     
     # banisterfiend - destroys enemy bullet on terrain collision  
     EnemyGhostBullet.all.each { |bullet|
-        if collision?(bullet.x, bullet.y)
-            bullet.destroy
+      if collision?(bullet.x, bullet.y)
+        bullet.hit_by(nil)
 
-            # banisterfiend - terrain destruction
-            @background.image.circle(bullet.x, bullet.y, 10, :color => :alpha, :fill => true)
-        end
+         # banisterfiend - terrain destruction
+        @background.image.circle(bullet.x, bullet.y, rand(20), :color => :alpha, :fill => true)
+      end
     }
 
     Bullet.each_bounding_box_collision([EnemyGhost, EnemySpirit]) do |bullet, enemy|
