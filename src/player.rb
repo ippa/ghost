@@ -168,14 +168,12 @@ class Player < Chingu::GameObject
 end
 
 class Bullet < Chingu::GameObject
-  has_trait :collision_detection, :timer
-  attr_reader :bounding_box
+  has_trait :collision_detection, :timer, :bounding_box
   
   def initialize(options)
     super
     @image = Image["enemy_ghost_bullet.png"]
-    @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
-    self.rotation_center(:center)
+    rotation_center(:center)
     
     # banisterfiend
     @direc = options[:facing] == :left ? -1 : 1
@@ -187,8 +185,6 @@ class Bullet < Chingu::GameObject
   
   def update
     @x += 3 * @direc
-    @bounding_box.x = @x - @image.width/2
-    @bounding_box.y = @y - @image.height/2
   end
   
 end

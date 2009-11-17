@@ -1,16 +1,12 @@
 class EnemyGhost < Chingu::GameObject
-  has_trait :collision_detection, :timer
-  attr_reader :bounding_box
+  has_trait :collision_detection, :timer, :bounding_box
   
   def initialize(options)
     super
     
     @type = options[:type] || 1
     @image = Image["enemy_ghost.png"]
-    @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
     rotation_center(:center)
-    
-    
     
     @red = Color.new(0xFFFF0000)
     @green = Color.new(0xFF00FF00)
@@ -39,17 +35,15 @@ class EnemyGhost < Chingu::GameObject
   
   def update
     @x -= @speed
-    @bounding_box.x = @x - @image.width/2
-    @bounding_box.y = @y - @image.height/2
   end
   
   def fire
     Sound["swosh.wav"].play
-    bullet = EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :color => @color)
+    bullet = EnemyGhostBullet.create(:x => self.bounding_box.left, :y => @y, :color => @color)
   end
   
   def hit_by(object)
-    Sound["breath.wav"].play
+    Sound["breath.wav"].play(0.5)
     during(250) { self.factor_y += 0.03; self.alpha -= 1; }.then { destroy }
   end  
   
@@ -57,8 +51,7 @@ end
 
 
 class EnemySpirit < Chingu::GameObject
-  has_trait :collision_detection, :timer
-  attr_reader :bounding_box
+  has_trait :collision_detection, :timer, :bounding_box
   
   def initialize(options)
     super
@@ -72,7 +65,6 @@ class EnemySpirit < Chingu::GameObject
     @amp = rand(7)
     
     @image = Image["enemy_spirit.png"]
-    @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
     self.rotation_center(:center)
     
     #
@@ -102,13 +94,11 @@ class EnemySpirit < Chingu::GameObject
     @dx = @amp * Math::sin(@dtheta / 180.0 * Math::PI)
     @x = @x_anchor + @dx
     @y -= @speed
-    @bounding_box.x = @x - @image.width/2
-    @bounding_box.y = @y - @image.height/2
   end
   
   def fire
     Sound["swosh.wav"].play
-    EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y)
+    EnemyGhostBullet.create(:x => self.bounding_box.left, :y => @y)
     
     if @type == 2
       EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -150)
@@ -123,7 +113,7 @@ class EnemySpirit < Chingu::GameObject
   end
   
   def hit_by(object)
-    Sound["breath.wav"].play
+    Sound["breath.wav"].play(0.4)
     during(250) { self.factor_y += 0.03; self.alpha -= 1; }.then { destroy }
   end  
   
@@ -132,9 +122,8 @@ end
 
 
 class EnemyGhostBullet < Chingu::GameObject
-  has_trait :collision_detection, :velocity, :timer
-  attr_reader :bounding_box
-  
+  has_trait :collision_detection, :velocity, :timer, :bounding_box
+ 
   def initialize(options)
     super
   
@@ -145,17 +134,12 @@ class EnemyGhostBullet < Chingu::GameObject
     self.velocity_y = ($window.current_game_state.player.y - @y + @y_offset) / 100
         
     @image = Image["enemy_ghost_bullet.png"]
-    @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
     self.rotation_center(:center)
+    
+    update_trait  # this seems to be needed to init the bounding_box correclty, investigate!
   end
 
   def hit_by(object)
     during(50) { self.factor += 1; self.alpha -= 10; }.then { destroy }
   end  
-  
-  def update
-    @bounding_box.x = @x - @image.width/2
-    @bounding_box.y = @y - @image.height/2
-  end
-  
 end

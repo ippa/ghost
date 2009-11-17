@@ -396,7 +396,7 @@ class Heaven < Screen
     
     Player.each_bounding_box_collision(PowerUp) do |player, powerup|
       $window.firepower = powerup.type
-      Sound["power_up.wav"].play
+      Sound["power_up.wav"].play(0.4)
       powerup.destroy
     end
   end
@@ -418,7 +418,7 @@ class Hell < Screen
     
     Player.each_bounding_box_collision(PowerUp) do |player, powerup|
       $window.firepower = powerup.type
-      Sound["power_up.wav"].play
+      Sound["power_up.wav"].play(0.4)
       powerup.destroy
     end
   end  
