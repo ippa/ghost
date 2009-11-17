@@ -77,9 +77,51 @@ class Player < Chingu::GameObject
     def right
       @facing = :right
       return if collisions_right?
-      @velocity_x = @speed
+      @velocity_x = @speed 
     end
-        
+
+    Collision_Step = 10
+
+    def collisions_left?
+        bg = $window.current_game_state 
+        box = @bounding_box
+
+        (0..@image.height).step(Collision_Step) do |dy| 
+                return true if bg.pixel_collision_at?(box.left - 25, box.top + dy)
+        end
+        false
+    end
+
+    def collisions_right?
+        bg = $window.current_game_state
+        box = @bounding_box
+
+        (0..@image.height).step(Collision_Step) do |dy|
+            return true if bg.pixel_collision_at?(box.right + 25, box.top + dy)
+        end
+        false
+    end
+
+    def collisions_top?
+        bg = $window.current_game_state
+        box = @bounding_box
+
+        (0..@image.width).step(Collision_Step) do |dx|
+            return true if bg.pixel_collision_at?(box.left + dx, box.top - 25)
+        end
+        false
+    end
+
+    def collisions_bottom?
+        bg = $window.current_game_state
+        box = @bounding_box
+
+        (0..@image.width).step(Collision_Step) do |dx|
+            return true if bg.pixel_collision_at?(box.left + dx, box.bottom + 25)
+        end
+        false
+    end
+    
     def collisions_left?
         bg = $window.current_game_state
         (0..@image.height).step(5) do |dy|
@@ -114,14 +156,9 @@ class Player < Chingu::GameObject
           return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.bottom)
         end
         false
-    end
+      end
       
-    def collisions?
-      collisions_left? || collisions_right? || collisions_top? || collisions_bottom?
-      #collisions_right?
-    end
-    
-    def update      
+    def update
         left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
         right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
         up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
