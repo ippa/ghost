@@ -51,32 +51,75 @@ class Player < Chingu::GameObject
     
     
     def up
+      return if collisions_top?
       @velocity_y = -@speed
-      handle_collision
       @y_anchor += @velocity_y
     end
 
     def down
+      return if collisions_bottom?
       @velocity_y = @speed
-      handle_collision
       @y_anchor += @velocity_y
     end
 
     def left
       @facing = :left
-      @velocity_x = -@speed
-      handle_collision
+      return if collisions_left?  
+      @velocity_x = -@speed 
+
     end
     
     def right
       @facing = :right
-      @velocity_x = @speed
-      handle_collision    
+      return if collisions_right?
+      @velocity_x = @speed 
+    end
+
+    Collision_Step = 10
+
+    def collisions_left?
+        bg = $window.current_game_state 
+        box = @bounding_box
+
+        (0..@image.height).step(Collision_Step) do |dy| 
+                return true if bg.pixel_collision_at?(box.left - 25, box.top + dy)
+        end
+        false
+    end
+
+    def collisions_right?
+        bg = $window.current_game_state
+        box = @bounding_box
+
+        (0..@image.height).step(Collision_Step) do |dy|
+            return true if bg.pixel_collision_at?(box.right + 25, box.top + dy)
+        end
+        false
+    end
+
+    def collisions_top?
+        bg = $window.current_game_state
+        box = @bounding_box
+
+        (0..@image.width).step(Collision_Step) do |dx|
+            return true if bg.pixel_collision_at?(box.left + dx, box.top - 25)
+        end
+        false
+    end
+
+    def collisions_bottom?
+        bg = $window.current_game_state
+        box = @bounding_box
+
+        (0..@image.width).step(Collision_Step) do |dx|
+            return true if bg.pixel_collision_at?(box.left + dx, box.bottom + 25)
+        end
+        false
     end
     
     def handle_collision
       if $window.current_game_state.respond_to?("pixel_collision_at?")
-      if $window.current_game_state.pixel_collision_at?(@bounding_box.centerx, @bounding_box.bottom)
+      if false
         steps = $window.current_game_state.distance_to_surface(@bounding_box.centerx, @bounding_box.bottom)
         
         if steps  < @max_steps
@@ -90,7 +133,10 @@ class Player < Chingu::GameObject
     end
     
     def update
-      
+        @bounding_box.x = @x - @image.width/2
+        @bounding_box.y = @y - @image.height/2
+        $window.draw_rect(@bounding_box, Color.new(0xFFFF0000), 1)
+
         left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
         right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
         up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
