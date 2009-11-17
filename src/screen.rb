@@ -1,6 +1,8 @@
 class Screen < Chingu::GameState
   has_trait :timer
+  
   attr_reader :map, :player
+  attr_accessor :background
   
   
   def initialize(options = {})
@@ -377,14 +379,25 @@ end
 class Heaven < Screen
   def initialize(options = {})
     super
-    @game_states[:right] = Heaven
-    @game_states[:left] = Heaven
-    @game_states[:up] = Heaven
-    @game_states[:down] = Screen0    
+    #@game_states[:right] = Heaven
+    #@game_states[:left] = Heaven
+    #@game_states[:up] = Heaven
+    @game_states[:down] = Screen0
+    PowerUp.create(:x => 650, :y => 300, :type => 2)
   end
   
   def setup
     Sound["heaven.wav"].play
+  end
+  
+  def update
+    super
+    
+    Player.each_bounding_box_collision(PowerUp) do |player, powerup|
+      $window.firepower = powerup.type
+      Sound["power_up.wav"].play
+      powerup.destroy
+    end
   end
 end
 
@@ -392,9 +405,20 @@ class Hell < Screen
   def initialize(options = {})
     super
     @game_states[:up] = Screen0
+    PowerUp.create(:x => 670, :y => 400, :type => 3)
   end
   
   def setup
     Sound["hell.wav"].play
   end
+  
+  def update
+    super
+    
+    Player.each_bounding_box_collision(PowerUp) do |player, powerup|
+      $window.firepower = powerup.type
+      Sound["power_up.wav"].play
+      powerup.destroy
+    end
+  end  
 end

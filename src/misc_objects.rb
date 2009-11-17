@@ -13,3 +13,20 @@ class Fog < GameObject
     @x + @image.width * @factor_x
   end
 end
+
+
+class PowerUp < GameObject
+  has_trait :bounding_box
+  attr_reader :type
+
+  def initialize(options)
+    super
+    @type = options[:type] || 2
+    
+    @image = Image["power_up.png"]    if @type == 2
+    @image = Image["power_up_2.png"]  if @type == 3
+    
+    self.rotation_center = :center
+  end
+  
+end

@@ -20,7 +20,7 @@ include Chingu
 require_all 'src/'
 
 class Game < Chingu::Window
-  attr_accessor :achievements
+  attr_accessor :achievements, :firepower
   
   def initialize
     super(800, 600)
@@ -28,9 +28,12 @@ class Game < Chingu::Window
     self.caption = "Ghost! A mini-LD entry. http://ippa.se/gaming"
     
     @achievements = []
+    @firepower = 1
     
-    switch_game_state(Screen1.new)
-    #switch_game_state(Alive1.new)
+    # switch_game_state(Screen1.new)
+    switch_game_state(Hell.new)
+    
+    ## switch_game_state(Alive1.new)
   end
 
 end

@@ -1,5 +1,5 @@
 class Player < Chingu::GameObject
-    has_traits :velocity, :collision_detection, :timer, :effect
+    has_traits :velocity, :bounding_box, :collision_detection, :timer, :effect
     attr_reader :max_steps, :facing
     
     def initialize(options)
@@ -17,7 +17,6 @@ class Player < Chingu::GameObject
       # banisterfiend
       @facing = :right
       
-      
       @cooling_down = false
         
       self.input = {
@@ -27,10 +26,7 @@ class Player < Chingu::GameObject
         #:holding_down => :down,
         :space => :fire
       }
-        
-      #@bounding_box = Rect.new(@x, @y, @image.width, @image.height)
-      @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
-        
+      
       self.rotation_center(:center)
     end
       
@@ -46,86 +42,119 @@ class Player < Chingu::GameObject
       after(500) { @cooling_down = false }
       
       Sound["swosh.wav"].play
-      Bullet.create(:x => @x, :y => @y, :facing => facing)
+      
+      if $window.firepower == 1
+        Bullet.create(:x => @x, :y => @y, :facing => facing)
+      elsif $window.firepower == 2
+        Bullet.create(:x => @x, :y => @y, :facing => facing)
+        Bullet.create(:x => @x, :y => @y-60, :facing => facing)
+      elsif $window.firepower == 3
+        Bullet.create(:x => @x, :y => @y-60, :facing => facing)
+        Bullet.create(:x => @x, :y => @y, :facing => facing)
+        Bullet.create(:x => @x, :y => @y+60, :facing => facing)
+      end
     end
     
     
     def up
+      return if collisions_top?
       @velocity_y = -@speed
-      handle_collision
       @y_anchor += @velocity_y
     end
 
     def down
+      return if collisions_bottom?
       @velocity_y = @speed
-      handle_collision
       @y_anchor += @velocity_y
     end
 
     def left
       @facing = :left
+      return if collisions_left?
       @velocity_x = -@speed
-      handle_collision
     end
     
     def right
       @facing = :right
+      return if collisions_right?
       @velocity_x = @speed
-      handle_collision    
     end
-    
-    def handle_collision
-      if $window.current_game_state.respond_to?("pixel_collision_at?")
-      if $window.current_game_state.pixel_collision_at?(@bounding_box.centerx, @bounding_box.bottom)
-        steps = $window.current_game_state.distance_to_surface(@bounding_box.centerx, @bounding_box.bottom)
         
-        if steps  < @max_steps
-          @y -= steps
-          @y_anchor = @y
-        else
-          @x = @last_x
+    def collisions_left?
+        bg = $window.current_game_state
+        (0..@image.height).step(5) do |dy|
+          #bg.background.image.paint { pixel self.BB.left, self.BB.top + dy, :color => :red}
+          return true if bg.pixel_collision_at?(self.BB.left, self.BB.top + dy)
         end
-      end
-      end
+        false
+    end
+ 
+    def collisions_right?
+        bg = $window.current_game_state
+        (0..@image.height).step(5) do |dy|
+          #bg.background.image.paint { pixel self.BB.right, self.BB.top + dy, :color => :red}
+          return true if bg.pixel_collision_at?(self.BB.right, self.BB.top + dy)
+        end
+        false
+    end
+ 
+    def collisions_top?
+        bg = $window.current_game_state
+        (0..@image.width).step(5) do |dx|
+          #bg.background.image.paint { pixel self.BB.left + dx, self.BB.top, :color => :red}
+          return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.top)
+        end
+        false
+    end
+ 
+    def collisions_bottom?
+        bg = $window.current_game_state 
+        (0..@image.width).step(5) do |dx|
+          #bg.background.image.paint { pixel self.BB.left + dx, self.BB.bottom, :color => :red}
+          return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.bottom)
+        end
+        false
+    end
+      
+    def collisions?
+      collisions_left? || collisions_right? || collisions_top? || collisions_bottom?
+      #collisions_right?
     end
     
-    def update
-      
+    def update      
         left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
         right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
         up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
         down  if $window.button_down? Button::KbDown  or $window.button_down? Button::GpDown
-
+        
+        $window.draw_rect(@bounding_box, Color.new(0xFFFF0000), 1)
       
         # Slow down the playermovement to a halt when dead
         @velocity_x *= 0.90 if @velocity_x.abs <= @speed
         @velocity_y *= 0.90 if @velocity_y.abs <= @speed
         
-        @last_x, @last_y = @x, @y   # Move this to trait "velocity"
-        
         #
         # Make the ghost "float" up and down when idle
-        #
         #
         if @velocity_x.abs < 0.1 and @velocity_y.abs < 0.1
           @dtheta = (@dtheta + 5) % 360
           @dy = 5 * Math::sin(@dtheta / 180.0 * Math::PI)
-          @y = @y_anchor + @dy
+          #@y = @y_anchor + @dy  unless (@dy > 0 && collisions_top?) || (@dy < 0 && collisions_bottom?)
         else
           @dtheta = 0
           @y_anchor = @y
-        end
-        
-        @bounding_box.x = @x - @image.width/2
-        @bounding_box.y = @y - @image.height/2
-
-        handle_collision
+        end        
                 
         # Make sure player-image is turned correctly, use GOSUs draw_rot argument factor_x to achieve this
         # Dont modify when scaling
         if @factor_x.abs == 1
           @factor_x = (@velocity_x >= 0) ? 1 : -1 
         end
+        
+        #@x = @last_x if self.collisions_right? || self.collisions_left?
+        #@y = @last_y if self.collisions_top? || self.collisions_bottom?
+        
+        @last_x, @last_y = @x, @y   # Move this to trait "velocity"
     end
 end
 
