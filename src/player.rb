@@ -87,7 +87,7 @@ class Player < Chingu::GameObject
         box = @bounding_box
 
         (0..@image.height).step(Collision_Step) do |dy| 
-                return true if bg.pixel_collision_at?(box.left - 25, box.top + dy)
+                return true if bg.pixel_collision_at?(box.left - 75, box.top + dy)
         end
         false
     end
@@ -121,42 +121,6 @@ class Player < Chingu::GameObject
         end
         false
     end
-    
-    def collisions_left?
-        bg = $window.current_game_state
-        (0..@image.height).step(5) do |dy|
-          #bg.background.image.paint { pixel self.BB.left, self.BB.top + dy, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.left, self.BB.top + dy)
-        end
-        false
-    end
- 
-    def collisions_right?
-        bg = $window.current_game_state
-        (0..@image.height).step(5) do |dy|
-          #bg.background.image.paint { pixel self.BB.right, self.BB.top + dy, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.right, self.BB.top + dy)
-        end
-        false
-    end
- 
-    def collisions_top?
-        bg = $window.current_game_state
-        (0..@image.width).step(5) do |dx|
-          #bg.background.image.paint { pixel self.BB.left + dx, self.BB.top, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.top)
-        end
-        false
-    end
- 
-    def collisions_bottom?
-        bg = $window.current_game_state 
-        (0..@image.width).step(5) do |dx|
-          #bg.background.image.paint { pixel self.BB.left + dx, self.BB.bottom, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.bottom)
-        end
-        false
-      end
       
     def update
         left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
