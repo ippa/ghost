@@ -58,13 +58,29 @@ class Screen < Chingu::GameState
     $window.caption = "Ghost. Screen: #{self.class.to_s}. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
     if @player.x >= @width
-      switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))       if  @game_states[:right]
+      if  @game_states[:right]
+        switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))
+      else
+        @player.x = @width-1
+      end
     elsif @player.x < 0
-      switch_game_state(@game_states[:left].new(:enter_x => @width-1, :enter_y => @player.y)) if  @game_states[:left]
+      if  @game_states[:left]
+        switch_game_state(@game_states[:left].new(:enter_x => @width-1, :enter_y => @player.y))
+      else
+        @player.x = 0
+      end
     elsif @player.y > @height
-      switch_game_state(@game_states[:down].new(:enter_x => @player.x, :enter_y => 1))        if  @game_states[:down]
+      if  @game_states[:down]
+        switch_game_state(@game_states[:down].new(:enter_x => @player.x, :enter_y => 1))
+      else
+        @player.y = @height
+      end
     elsif @player.y < 0
-      switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))  if @game_states[:up]
+      if @game_states[:up]
+        switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))
+      else
+        @player.y = 0
+      end
     end
     
     #

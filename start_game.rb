@@ -29,8 +29,8 @@ class Game < Chingu::Window
     
     @achievements = []
     
-    #switch_game_state(Screen1.new)
-    switch_game_state(Alive1.new)
+    switch_game_state(Screen1.new)
+    #switch_game_state(Alive1.new)
   end
 
 end
