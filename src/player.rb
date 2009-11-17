@@ -80,7 +80,7 @@ class Player < Chingu::GameObject
       @velocity_x = @speed 
     end
 
-    Collision_Step = 25
+    Collision_Step = 15
 
     def collisions_left?
         bg = $window.current_game_state 
@@ -88,7 +88,7 @@ class Player < Chingu::GameObject
 
         #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.height).step(Collision_Step) do |dy| 
-                return true if bg.pixel_collision_at?(box.left, box.top + dy)
+                return true if bg.pixel_collision_at?(box.left - 25, box.top + dy)
         end
         false
     end
@@ -99,7 +99,7 @@ class Player < Chingu::GameObject
 
         #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.height).step(Collision_Step) do |dy|
-            return true if bg.pixel_collision_at?(box.right, box.top + dy)
+            return true if bg.pixel_collision_at?(box.right + 25, box.top + dy)
         end
         false
     end
@@ -110,7 +110,7 @@ class Player < Chingu::GameObject
         
         #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.width).step(Collision_Step) do |dx|
-            return true if bg.pixel_collision_at?(box.left + dx, box.top)
+            return true if bg.pixel_collision_at?(box.left + dx, box.top - 25)
         end
         false
     end
@@ -121,7 +121,7 @@ class Player < Chingu::GameObject
 
         #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.width).step(Collision_Step) do |dx|
-            return true if bg.pixel_collision_at?(box.left + dx, box.bottom)
+            return true if bg.pixel_collision_at?(box.left + dx, box.bottom + 25)
         end
         false
     end
