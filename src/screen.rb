@@ -368,6 +368,7 @@ class Screen15 < Screen
       @player.velocity_y  = -4
       @player.rotation_rate = 8
       switch_game_state(GameStates::FadeTo.new(Alive1, :speed => 2))
+      Song.current_song.stop if current_song
       return
     end
     

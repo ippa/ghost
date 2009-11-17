@@ -69,6 +69,6 @@ class Funeral < GameState
     Song["church.ogg"].play
     after(6000) { push_game_state(GameStates::FadeTo.new(Screen1, :speed => 2)) }
     GameObject.create(:x => $window.width/2, :y => $window.height/2, :image => "rip.png", :rotation_center => :center)
-  end  
-  
+  end
+    
 end
