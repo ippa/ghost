@@ -14,6 +14,14 @@ To run from source You need:
 
 == Tools Used
   www.libgosu.org for OpenGL accelerated 2D gfx
-  www.freesound.org for sound
+  www.freesound.org and sfxr for sound
   Inkscape and Gimp for GFX
   SCiTE for editing
+
+== How to play
+Use arrow keys and space. Gamepad [sc]ould work as well.
+There's some hidden stuff in this game... only the elite will find them :p.
+
+== Credits/Team
+ippa
+banister`garden ... :)

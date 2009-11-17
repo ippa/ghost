@@ -31,6 +31,7 @@ class EnemyGhost < Chingu::GameObject
     
     @factor_x = -1              # Turn sprite left    
     every(@fire_rate) { fire }  # Fire a bullet every @fire_rate millisecond
+    update_trait  # this seems to be needed to init the bounding_box correclty, investigate!
   end
   
   def update
@@ -87,6 +88,7 @@ class EnemySpirit < Chingu::GameObject
 
     @factor_x = -1              # Turn sprite left    
     every(@fire_rate) { fire }  # Fire a bullet every @fire_rate millisecond
+    update_trait  # this seems to be needed to init the bounding_box correclty, investigate!
   end
   
   def update

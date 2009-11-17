@@ -168,6 +168,7 @@ class Bullet < Chingu::GameObject
     
     # banisterfiend
     @direc = options[:facing] == :left ? -1 : 1
+    update_trait
   end
 
   def hit_by(object)

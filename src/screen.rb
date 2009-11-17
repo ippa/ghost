@@ -232,11 +232,11 @@ class Screen7 < Screen
   end
   
   def setup
-    EnemyGhost.create(:x => @width , :y => 50, :tpye => 2)
-    EnemyGhost.create(:x => @width - 100, :y => 100, :tpye => 3)
-    EnemyGhost.create(:x => @width - 100, :y => 150, :tpye => 3)
-    EnemyGhost.create(:x => @width - 100, :y => 200, :tpye => 3)
-    EnemyGhost.create(:x => @width - 100, :y => 300, :tpye => 2)
+    EnemyGhost.create(:x => @width , :y => 50, :type => 2)
+    EnemyGhost.create(:x => @width - 100, :y => 100, :type => 3)
+    EnemyGhost.create(:x => @width - 100, :y => 150, :type => 3)
+    EnemyGhost.create(:x => @width - 100, :y => 200, :type => 3)
+    EnemyGhost.create(:x => @width - 100, :y => 300, :type => 2)
   end  
 end
 
@@ -259,7 +259,8 @@ class Screen9 < Screen
   
   def setup
     EnemySpirit.create(:x => @width - 50, :type => 1)
-    EnemySpirit.create(:x => @width - 100, :type => 2)
+    EnemySpirit.create(:x => @width - 100, :y => 300, :type => 2)
+    EnemySpirit.create(:x => rand(8) * 100, :y => 600, :type => 2)
     every(2000) { EnemySpirit.create(:x => rand(8) * 100, :type => 1) }
   end
 
@@ -273,8 +274,9 @@ class Screen10 < Screen
   end
   
   def setup
-    EnemySpirit.create(:x => @width - 20, :type => 1)
+    EnemySpirit.create(:x => @width - 20, :type => 2)
     EnemySpirit.create(:x => @width - 200, :type => 3)
+    EnemySpirit.create(:x => @width - 200, :y => 600, :type => 3)
     every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 2) }
   end  
 end
@@ -288,9 +290,9 @@ class Screen11 < Screen
   end
   
   def setup
-    EnemySpirit.create(:x => @width - 20, :type => 1)
-    EnemySpirit.create(:x => @width - 100, :type => 2, :y => 500)
-    EnemySpirit.create(:x => @width - 200, :type => 3, :y => 300)
+    EnemySpirit.create(:x => @width - 20, :type => 2)
+    EnemySpirit.create(:x => @width - 100, :type => 2, :y => 300)
+    EnemySpirit.create(:x => @width - 200, :type => 3, :y => 500)
     every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 2) }
   end  
 end
@@ -319,6 +321,9 @@ class Screen13 < Screen
     EnemyGhost.create(:x => @width-20, :y => rand(@height)-100, :type => 3)
     EnemyGhost.create(:x => @width-50, :y => rand(@height)-100, :type => 3)
     EnemyGhost.create(:x => @width-100, :y => rand(@height)-100, :type => 3)
+    EnemySpirit.create(:x => rand(8) * 100, :y => 300, :type => 2)
+    EnemySpirit.create(:x => rand(8) * 100, :y => 500, :type => 2)
+    EnemySpirit.create(:x => rand(8) * 100, :y => 600, :type => 2)
     every(2000) { EnemyGhost.create(:x => @width, :y => rand(@height)-100, :type => 3) }
     every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 2) }
   end  
