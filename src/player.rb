@@ -1,6 +1,6 @@
 class Player < Chingu::GameObject
     has_traits :velocity, :collision_detection, :timer, :effect
-    attr_reader :max_steps
+    attr_reader :max_steps, :facing
     
     def initialize(options)
       super
@@ -13,6 +13,10 @@ class Player < Chingu::GameObject
       @status = :dead
       @dtheta = 0
       @y_anchor = @y
+        
+      # banisterfiend
+      @facing = :right
+      
       
       @cooling_down = false
         
@@ -42,7 +46,7 @@ class Player < Chingu::GameObject
       after(500) { @cooling_down = false }
       
       Sound["swosh.wav"].play
-      Bullet.create(:x => @x, :y => @y)
+      Bullet.create(:x => @x, :y => @y, :facing => facing)
     end
     
     
@@ -59,11 +63,13 @@ class Player < Chingu::GameObject
     end
 
     def left
+      @facing = :left
       @velocity_x = -@speed
       handle_collision
     end
     
     def right
+      @facing = :right
       @velocity_x = @speed
       handle_collision    
     end
@@ -132,6 +138,9 @@ class Bullet < Chingu::GameObject
     @image = Image["enemy_ghost_bullet.png"]
     @bounding_box = Rect.new(@x-@image.width/2, @y-@image.height/2, @image.width, @image.height)
     self.rotation_center(:center)
+    
+    # banisterfiend
+    @direc = options[:facing] == :left ? -1 : 1
   end
 
   def hit_by(object)
@@ -139,7 +148,7 @@ class Bullet < Chingu::GameObject
   end
   
   def update
-    @x += 3
+    @x += 3 * @direc
     @bounding_box.x = @x - @image.width/2
     @bounding_box.y = @y - @image.height/2
   end
