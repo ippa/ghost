@@ -31,7 +31,7 @@ class Game < Chingu::Window
     @firepower = 1
     
     ##switch_game_state(Alive1.new)
-    switch_game_state(Screen1.new)
+    switch_game_state(Screen15.new)
     ## switch_game_state(Hell.new)
   end
 

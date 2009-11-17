@@ -152,10 +152,9 @@ class Screen2 < Screen
   end
 
   def setup
-    5.times do |nr|
+    2.times do |nr|
       after(nr * 400) { EnemyGhost.create(:x => @width, :y => (nr+1) * 50 + rand(10)) }
     end
-    EnemySpirit.create(:x => 600)
   end
 end
 
@@ -170,7 +169,13 @@ class Screen3 < Screen
   def setup
     EnemyGhost.create(:x => @width - 20, :y => 100)
     EnemyGhost.create(:x => @width - 60, :y => 200, :type => 2)
-    EnemyGhost.create(:x => @width - 100, :y => 300)    
+    EnemyGhost.create(:x => @width - 100, :y => 300)
+
+    after(2000) {
+      4.times do |nr|
+        after(nr * 400) { EnemyGhost.create(:x => @width, :y => (nr+1) * 50 + rand(10)) }
+      end
+    }
   end  
 end
 
@@ -199,7 +204,8 @@ class Screen5 < Screen
   end
   
   def setup
-    every(1500) { EnemyGhost.create(:x => @width, :y => 50 + rand(200)) }
+    EnemyGhost.create(:x => @width, :y => 50 + rand(200))
+    every(1000) { EnemyGhost.create(:x => @width, :y => 50 + rand(200)) }
   end
 end
 
@@ -212,7 +218,8 @@ class Screen6 < Screen
   end
   
   def setup
-    every(2000) { EnemyGhost.create(:x => @width, :y => 50 + rand(200), :type => 2) }
+    EnemyGhost.create(:x => @width, :y => 50 + rand(200), :type => 2)
+    every(1000) { EnemyGhost.create(:x => @width, :y => 50 + rand(200), :type => 2) }
   end
 end
 
@@ -333,14 +340,12 @@ class Screen15 < Screen
   def initialize(options = {})
     super
     @game_states[:left] = Screen13
-    @game_states[:right] = Screen15
-    
     @truck = GameObject.create( :x => $window.width,
                                 :y => 300, 
                                 :image => Image["truck.png"], 
                                 :factor => 2,
-                                :rotation_center => :left_bottom, 
-                                :color => Color.new(0x99FFFFFF)
+                                :rotation_center => :left_center,
+                                :color => Color.new(0x55FFFFFF)
                               )
     @ghost = EnemyGhost.create(:x => $window.width + 50, :y => 100, :type => 3, :paused => true)
     
@@ -349,12 +354,13 @@ class Screen15 < Screen
   end
   
   def update
-    
+  
     if @player.x > @truck_endpoint && @truck.x > @truck_endpoint
       Sound["skid.ogg"].play  if @truck.x == $window.width
       
       @ghost.unpause!
       
+      @truck.y = @player.y
       @truck.x -= 10
       @ghost.x -= 10
     end
@@ -364,11 +370,14 @@ class Screen15 < Screen
       
       @player.input = nil
       @player_hit = true
-      @player.velocity_x  = -6
+      @player.velocity_x  = -5
+      @player.acceleration_x = 0.02
       @player.velocity_y  = -4
+      @player.acceleration_x = 0.02
       @player.rotation_rate = 8
-      switch_game_state(GameStates::FadeTo.new(Alive1, :speed => 2))
-      Song.current_song.stop if current_song
+      
+      after(4000) { switch_game_state(GameStates::FadeTo.new(Alive1, :speed => 2)) }
+      Song.current_song.stop if Song.current_song
       return
     end
     
@@ -380,9 +389,6 @@ end
 class Heaven < Screen
   def initialize(options = {})
     super
-    #@game_states[:right] = Heaven
-    #@game_states[:left] = Heaven
-    #@game_states[:up] = Heaven
     @game_states[:down] = Screen0
     PowerUp.create(:x => 650, :y => 300, :type => 2)
   end
