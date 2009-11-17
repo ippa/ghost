@@ -20,13 +20,15 @@ include Chingu
 require_all 'src/'
 
 class Game < Chingu::Window
-  attr_accessor :player
+  attr_accessor :achievements
   
   def initialize
     super(800, 600)
     self.input = { :esc => :close }
-    
     self.caption = "Ghost! A mini-LD entry. http://ippa.se/gaming"
+    
+    @achievements = []
+    
     #switch_game_state(Screen1.new)
     switch_game_state(Alive1.new)
   end

@@ -75,8 +75,8 @@ class Player < Chingu::GameObject
     end
     
     def handle_collision
-      if $window.current_game_state.respond_to?("collision?")
-      if $window.current_game_state.collision?(@bounding_box.centerx, @bounding_box.bottom)
+      if $window.current_game_state.respond_to?("pixel_collision_at?")
+      if $window.current_game_state.pixel_collision_at?(@bounding_box.centerx, @bounding_box.bottom)
         steps = $window.current_game_state.distance_to_surface(@bounding_box.centerx, @bounding_box.bottom)
         
         if steps  < @max_steps
@@ -196,7 +196,7 @@ class AlivePlayer < Chingu::GameObject
     end
     
     def handle_collision
-        if $window.current_game_state.collision?(@x, @y)
+        if $window.current_game_state.pixel_collision_at?(@x, @y)
             steps = $window.current_game_state.distance_to_surface(@x, @y)
             if steps  < @max_steps
                 @y -= steps

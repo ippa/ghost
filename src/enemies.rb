@@ -80,13 +80,13 @@ class EnemySpirit < Chingu::GameObject
     #
     if @type == 1
       @speed = 1
-      @fire_rate = 2000
+      @fire_rate = 4000
     elsif @type == 2
       @speed = 1
-      @fire_rate = 1500
+      @fire_rate = 3000
     elsif @type == 3
       @speed = 1
-      @fire_rate = 1000
+      @fire_rate = 2000
     end
     
     # Start out transparent, fade in

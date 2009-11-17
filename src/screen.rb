@@ -16,6 +16,8 @@ class Screen < Chingu::GameState
     @background = GameObject.create(:image => @image, :zorder => 10, :rotation_center => :top_left)
     
     @game_states = Hash.new
+    @game_states[:down] = Hell      # Hell is always lurking just 1 screen down! :P
+    
     @width = 800
     @height = 600
         
@@ -26,17 +28,9 @@ class Screen < Chingu::GameState
     @clouds.times do |nr|
       Fog.create(:x => (nr-1) * ($window.width/@clouds) - 100, :y => $window.height - 70 - rand(50))
     end
-    
-    load_game_objects
   end
   
-  def game_object_at(x, y)
-    game_objects.select do |game_object| 
-      game_object.respond_to?(:bounding_box) && game_object.bounding_box.collide_point?(x,y)
-    end.first
-  end
-  
-  def collision?(x, y)
+  def pixel_collision_at?(x, y)
     return false    if outside_window?(x, y)
     not @background.image.transparent_pixel?(x, y)
   end
@@ -47,7 +41,7 @@ class Screen < Chingu::GameState
   
   def distance_to_surface(x, y, max_steps = nil)
     steps = 0
-    steps += 1  while collision?(x, y - steps) && (y - steps) > 0
+    steps += 1  while pixel_collision_at?(x, y - steps) && (y - steps) > 0
     return steps
   end
   
@@ -64,38 +58,47 @@ class Screen < Chingu::GameState
     $window.caption = "Ghost. Screen: #{self.class.to_s}. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
     if @player.x >= @width
-      switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))
+      switch_game_state(@game_states[:right].new(:enter_x => 1, :enter_y => @player.y))       if  @game_states[:right]
     elsif @player.x < 0
-      switch_game_state(@game_states[:left].new(:enter_x => @width-1, :enter_y => @player.y))
+      switch_game_state(@game_states[:left].new(:enter_x => @width-1, :enter_y => @player.y)) if  @game_states[:left]
     elsif @player.y > @height
-      switch_game_state(@game_states[:down].new(:enter_x => @player.x, :enter_y => 1))
+      switch_game_state(@game_states[:down].new(:enter_x => @player.x, :enter_y => 1))        if  @game_states[:down]
     elsif @player.y < 0
-      # switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))
-      @player.y = 0
+      switch_game_state(@game_states[:up].new(:enter_x => @player.x, :enter_y => @height-1))  if @game_states[:up]
     end
     
-    @player.each_bounding_box_collision([EnemyGhost, EnemyGhostBullet]) do |me, enemy|
-      @player.hit_by(enemy)
-      enemy.hit_by(@player) if enemy.is_a? EnemyGhostBullet
+    #
+    # Collide player with all enemey bullets
+    #
+    @player.each_bounding_box_collision(EnemyGhostBullet) do |me, enemy_bullet|
+      @player.hit_by(enemy_bullet)
+      enemy_bullet.hit_by(@player)
     end
     
-    # banisterfiend - destroys enemy bullet on terrain collision  
-    EnemyGhostBullet.all.each { |bullet|
-      if collision?(bullet.x, bullet.y)
-        bullet.hit_by(nil)
-
-         # banisterfiend - terrain destruction
-        @background.image.circle(bullet.x, bullet.y, rand(20), :color => :alpha, :fill => true)
-      end
-    }
-
+    #
+    # Collide playerbullets with our all enemies (we have 2 different enemy classes)
+    #
     Bullet.each_bounding_box_collision([EnemyGhost, EnemySpirit]) do |bullet, enemy|
       enemy.hit_by(bullet)
       bullet.hit_by(enemy)
     end
     
-    game_objects.destroy_if { |game_object| game_object.outside_window? }
+    #
+    # banisterfiend - destroys enemy bullet on terrain collision  
+    #
+    EnemyGhostBullet.all.select { |bullet| pixel_collision_at?(bullet.x, bullet.y) }.each do |bullet|
+      bullet.hit_by(nil)
+      @background.image.circle(bullet.x, bullet.y, rand(20), :color => :alpha, :fill => true)
+    end
     
+    # .. also destroy our bullets on terrain collision
+    Bullet.all.select { |bullet| pixel_collision_at?(bullet.x, bullet.y) }.each do |bullet|
+      bullet.hit_by(nil)
+      @background.image.circle(bullet.x, bullet.y, rand(20), :color => :alpha, :fill => true)
+    end
+    
+    
+    game_objects.destroy_if { |game_object| game_object.outside_window? }
   end
   
   def draw
@@ -106,16 +109,21 @@ class Screen < Chingu::GameState
 end
 
 
+class Screen0 < Screen
+  def initialize(options = {})
+    super
+    @game_states[:right] = Screen1
+    @game_states[:up] = Heaven
+  end  
+end
+
 class Screen1 < Screen
   def initialize(options = {})
     super
+    @game_states[:left] = Screen0
     @game_states[:right] = Screen2
     Song["wind.ogg"].play(true)
-  end
-  
-  def setup
-    #EnemySpirit.create(:x => 400)
-  end
+  end  
 end
 
 class Screen2 < Screen
@@ -255,10 +263,10 @@ class Screen11 < Screen
   end
   
   def setup
-    EnemySpirit.create(:x => @width - 20, :type => 2)
-    EnemySpirit.create(:x => @width - 100, :type => 2)
-    EnemySpirit.create(:x => @width - 200, :type => 3)
-    every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 3) }
+    EnemySpirit.create(:x => @width - 20, :type => 1)
+    EnemySpirit.create(:x => @width - 100, :type => 2, :y => 500)
+    EnemySpirit.create(:x => @width - 200, :type => 3, :y => 300)
+    every(3000) { EnemySpirit.create(:x => rand(8) * 100, :type => 2) }
   end  
 end
 
@@ -345,10 +353,32 @@ class Screen15 < Screen
       return
     end
     
-    #if @player_hit && @player.outside_window?
-    #if @player_hit && (@player.y < 10 || @player.x < 10)
-    #end
-    
     super 
+  end
+end
+
+
+class Heaven < Screen
+  def initialize(options = {})
+    super
+    @game_states[:right] = Heaven
+    @game_states[:left] = Heaven
+    @game_states[:up] = Heaven
+    @game_states[:down] = Screen0    
+  end
+  
+  def setup
+    Sound["heaven.wav"].play
+  end
+end
+
+class Hell < Screen
+  def initialize(options = {})
+    super
+    @game_states[:up] = Screen0
+  end
+  
+  def setup
+    Sound["hell.wav"].play
   end
 end

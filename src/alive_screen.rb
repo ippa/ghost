@@ -18,7 +18,7 @@ class Alive1 < Chingu::GameState
     Sound["hit.wav"]
   end
 
-  def collision?(x, y)
+  def pixel_collision_at?(x, y)
     return false    if outside_window?(x, y)
     not @background.image.transparent_pixel?(x, y)
   end
@@ -29,7 +29,7 @@ class Alive1 < Chingu::GameState
 
   def distance_to_surface(x, y, max_steps = nil)
     steps = 0
-    steps += 1  while collision?(x, y - steps) && (y - steps) > 0
+    steps += 1  while pixel_collision_at?(x, y - steps) && (y - steps) > 0
     return steps
   end
 
