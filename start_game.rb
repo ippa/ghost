@@ -30,8 +30,8 @@ class Game < Chingu::Window
     @achievements = []
     @firepower = 1
     
-    ##switch_game_state(Alive1.new)
-    switch_game_state(Screen15.new)
+    switch_game_state(Alive1.new)
+    ##switch_game_state(Screen15.new)
     ## switch_game_state(Hell.new)
   end
 

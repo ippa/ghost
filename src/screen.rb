@@ -57,7 +57,7 @@ class Screen < Chingu::GameState
     Fog.destroy_if { |fog| fog.right < 0 || fog.x > @width}
     Fog.create(:x => @width, :y => @height - 70 - rand(50)) if Fog.size < @clouds
       
-    $window.caption = "Ghost. Screen: #{self.class.to_s}. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
+    #$window.caption = "Ghost. Screen: #{self.class.to_s}. FPS: #{$window.fps}. X/Y: #{@player.x}/#{@player.y}"
     
     if @player.x >= @width
       if  @game_states[:right]

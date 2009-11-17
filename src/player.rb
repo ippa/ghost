@@ -19,15 +19,15 @@ class Player < Chingu::GameObject
       
       @cooling_down = false
         
-      self.input = {
+      #self.input = {
         #:holding_left => :left, 
         #:holding_right => :right, 
         #:holding_up => :up,
         #:holding_down => :down,
-        :space => :fire
-      }
+        #:space => :fire
+      #}
       
-      self.rotation_center(:center)
+      rotation_center(:center)
     end
       
     def hit_by(object)
@@ -131,13 +131,8 @@ class Player < Chingu::GameObject
         right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
         up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
         down  if $window.button_down? Button::KbDown  or $window.button_down? Button::GpDown
-      
-        # seems to eat alot of cpu
-        #@velocity_x = 0 if @velocity_x > 0 && collisions_right?
-        #@velocity_x = 0 if @velocity_x < 0 && collisions_left?
-        #@velocity_y = 0 if @velocity_y > 0 && collisions_bottom?
-        #@velocity_y = 0 if @velocity_y < 0 && collisions_top?
-        
+        fire  if $window.button_down? Button::KbSpace or $window.button_down? Button::GpButton0
+              
         # Slow down the playermovement to a halt when dead
         @velocity_x *= 0.90 if @velocity_x.abs <= @speed
         @velocity_y *= 0.90 if @velocity_y.abs <= @speed
@@ -160,10 +155,6 @@ class Player < Chingu::GameObject
           @factor_x = (@velocity_x >= 0) ? 1 : -1 
         end
         
-        #@x = @last_x if self.collisions_right? || self.collisions_left?
-        #@y = @last_y if self.collisions_top? || self.collisions_bottom?
-        
-        @last_x, @last_y = @x, @y   # Move this to trait "velocity"
     end
 end
 
@@ -191,7 +182,7 @@ end
 
 
 class AlivePlayer < Chingu::GameObject
-    has_traits :velocity, :effect, :collision_detection, :timer
+    has_traits :velocity, :effect, :collision_detection, :timer, :bounding_box
     attr_reader :max_steps
     attr_accessor :status
     
@@ -207,12 +198,12 @@ class AlivePlayer < Chingu::GameObject
         @image_alive_1 = Image["player_alive_1.png"]
         @image_alive_2 = Image["player_alive_2.png"]   
         @image = @image_alive_1
-        @bounding_box = Rect.new(@x, @y, @image.width, @image.height)
+        
         @status = :default
         @last_direction = :left
-        @factor_x - 1
+        @factor_x = -1
         self.acceleration_y = 0.3 # gravity!
-        self.input = { :holding_left => :left, :holding_right => :right }    
+        #self.input = { :holding_left => :left, :holding_right => :right }    
     end
     
     def left
@@ -226,9 +217,9 @@ class AlivePlayer < Chingu::GameObject
         @x += @speed
         @last_direction = :right
         @status = :walking
-        handle_collision    
+        handle_collision
     end
-    
+        
     def handle_collision
         if $window.current_game_state.pixel_collision_at?(@x, @y)
             steps = $window.current_game_state.distance_to_surface(@x, @y)
@@ -245,7 +236,9 @@ class AlivePlayer < Chingu::GameObject
     def update    
         @last_x, @last_y = @x, @y   # Move this to trait "velocity"
         
-        super
+        left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
+        right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
+        
         handle_collision
         
         # Simple animation between 2 pictures when "alive"
