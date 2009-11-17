@@ -80,14 +80,15 @@ class Player < Chingu::GameObject
       @velocity_x = @speed 
     end
 
-    Collision_Step = 10
+    Collision_Step = 25
 
     def collisions_left?
         bg = $window.current_game_state 
         box = @bounding_box
 
+        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.height).step(Collision_Step) do |dy| 
-                return true if bg.pixel_collision_at?(box.left - 25, box.top + dy)
+                return true if bg.pixel_collision_at?(box.left, box.top + dy)
         end
         false
     end
@@ -96,8 +97,9 @@ class Player < Chingu::GameObject
         bg = $window.current_game_state
         box = @bounding_box
 
+        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.height).step(Collision_Step) do |dy|
-            return true if bg.pixel_collision_at?(box.right + 25, box.top + dy)
+            return true if bg.pixel_collision_at?(box.right, box.top + dy)
         end
         false
     end
@@ -105,9 +107,10 @@ class Player < Chingu::GameObject
     def collisions_top?
         bg = $window.current_game_state
         box = @bounding_box
-
+        
+        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.width).step(Collision_Step) do |dx|
-            return true if bg.pixel_collision_at?(box.left + dx, box.top - 25)
+            return true if bg.pixel_collision_at?(box.left + dx, box.top)
         end
         false
     end
@@ -116,56 +119,25 @@ class Player < Chingu::GameObject
         bg = $window.current_game_state
         box = @bounding_box
 
+        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.width).step(Collision_Step) do |dx|
-            return true if bg.pixel_collision_at?(box.left + dx, box.bottom + 25)
+            return true if bg.pixel_collision_at?(box.left + dx, box.bottom)
         end
         false
     end
-    
-    def collisions_left?
-        bg = $window.current_game_state
-        (0..@image.height).step(5) do |dy|
-          #bg.background.image.paint { pixel self.BB.left, self.BB.top + dy, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.left, self.BB.top + dy)
-        end
-        false
-    end
- 
-    def collisions_right?
-        bg = $window.current_game_state
-        (0..@image.height).step(5) do |dy|
-          #bg.background.image.paint { pixel self.BB.right, self.BB.top + dy, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.right, self.BB.top + dy)
-        end
-        false
-    end
- 
-    def collisions_top?
-        bg = $window.current_game_state
-        (0..@image.width).step(5) do |dx|
-          #bg.background.image.paint { pixel self.BB.left + dx, self.BB.top, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.top)
-        end
-        false
-    end
- 
-    def collisions_bottom?
-        bg = $window.current_game_state 
-        (0..@image.width).step(5) do |dx|
-          #bg.background.image.paint { pixel self.BB.left + dx, self.BB.bottom, :color => :red}
-          return true if bg.pixel_collision_at?(self.BB.left + dx, self.BB.bottom)
-        end
-        false
-      end
       
     def update
         left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
         right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
         up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
         down  if $window.button_down? Button::KbDown  or $window.button_down? Button::GpDown
-        
-        $window.draw_rect(@bounding_box, Color.new(0xFFFF0000), 1)
       
+        # seems to eat alot of cpu
+        #@velocity_x = 0 if @velocity_x > 0 && collisions_right?
+        #@velocity_x = 0 if @velocity_x < 0 && collisions_left?
+        #@velocity_y = 0 if @velocity_y > 0 && collisions_bottom?
+        #@velocity_y = 0 if @velocity_y < 0 && collisions_top?
+        
         # Slow down the playermovement to a halt when dead
         @velocity_x *= 0.90 if @velocity_x.abs <= @speed
         @velocity_y *= 0.90 if @velocity_y.abs <= @speed
