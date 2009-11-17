@@ -148,7 +148,7 @@ class Player < Chingu::GameObject
         if @velocity_x.abs < 0.1 and @velocity_y.abs < 0.1
           @dtheta = (@dtheta + 5) % 360
           @dy = 5 * Math::sin(@dtheta / 180.0 * Math::PI)
-          #@y = @y_anchor + @dy  unless (@dy > 0 && collisions_top?) || (@dy < 0 && collisions_bottom?)
+          @y = @y_anchor + @dy  unless (@dy > 0 && collisions_top?) || (@dy < 0 && collisions_bottom?)
         else
           @dtheta = 0
           @y_anchor = @y
