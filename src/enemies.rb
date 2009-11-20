@@ -1,5 +1,5 @@
 class EnemyGhost < Chingu::GameObject
-  has_trait :collision_detection, :timer, :bounding_box
+  has_traits :collision_detection, :timer, :bounding_box
   
   def initialize(options)
     super
@@ -8,30 +8,36 @@ class EnemyGhost < Chingu::GameObject
     @image = Image["enemy_ghost.png"]
     rotation_center(:center)
     
-    @red = Color.new(0xFFFF0000)
-    @green = Color.new(0xFF00FF00)
-    @blue = Color.new(0xFFAA00AA)
+    #@red = Color.new(0xFFFF0000)
+    #@green = Color.new(0xFF00FF00)
+    #@blue = Color.new(0xFFAA00AA)
     
     #
     # We have 3 different kind of ghosts, defaults to type #1
     #
-    if @type == 1
-      @color = @red.dup
-      @speed = 1
-      @fire_rate = 2000
-    elsif @type == 2
-      @color = @green.dup
-      @speed = 2
-      @fire_rate = 1500
-    elsif @type == 3
-      @color = @blue.dup
-      @speed = 2
-      @fire_rate = 1000
-    end
+    #if @type == 1
+    #  @color = @red.dup
+    #  @speed = 1
+    #  @fire_rate = 2000
+    #elsif @type == 2
+    #  @color = @green.dup
+    #  @speed = 2
+    #  @fire_rate = 1500
+    #elsif @type == 3
+    #  @color = @blue.dup
+    #  @speed = 2
+    #  @fire_rate = 1000
+    #end
+    
+    # We have 3 different kind of ghosts, defaults to type #1
+    @color, @speed, @fire_rate = case @type
+        when 1 then [Color.new(0xFFFF0000), 1, 2000]
+        when 2 then [Color.new(0xFF00FF00), 2, 1500]
+        when 3 then [Color.new(0xFFAA00AA), 2, 1000]
+    end    
     
     @factor_x = -1              # Turn sprite left    
     every(@fire_rate) { fire }  # Fire a bullet every @fire_rate millisecond
-    update_trait  # this seems to be needed to init the bounding_box correclty, investigate!
   end
   
   def update
@@ -52,7 +58,7 @@ end
 
 
 class EnemySpirit < Chingu::GameObject
-  has_trait :collision_detection, :timer, :bounding_box
+  has_traits :collision_detection, :timer, :bounding_box
   
   def initialize(options)
     super
@@ -88,7 +94,6 @@ class EnemySpirit < Chingu::GameObject
 
     @factor_x = -1              # Turn sprite left    
     every(@fire_rate) { fire }  # Fire a bullet every @fire_rate millisecond
-    update_trait  # this seems to be needed to init the bounding_box correclty, investigate!
   end
   
   def update
@@ -100,16 +105,16 @@ class EnemySpirit < Chingu::GameObject
   
   def fire
     Sound["swosh.wav"].play
-    EnemyGhostBullet.create(:x => self.bounding_box.left, :y => @y)
+    EnemyGhostBullet.create(:x => @x, :y => @y)
     
     if @type == 2
-      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -150)
-      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => 150)
+      EnemyGhostBullet.create(:x => @x, :y => @y, :y_offset => -150)
+      EnemyGhostBullet.create(:x => @x, :y => @y, :y_offset => 150)
     elsif @type == 3
-      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -250)
-      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => -150)
-      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => 150)
-      EnemyGhostBullet.create(:x => @bounding_box.left, :y => @y, :y_offset => 250)
+      EnemyGhostBullet.create(:x => @x, :y => @y, :y_offset => -250)
+      EnemyGhostBullet.create(:x => @x, :y => @y, :y_offset => -150)
+      EnemyGhostBullet.create(:x => @x, :y => @y, :y_offset => 150)
+      EnemyGhostBullet.create(:x => @x, :y => @y, :y_offset => 250)
     end
 
   end
@@ -124,7 +129,7 @@ end
 
 
 class EnemyGhostBullet < Chingu::GameObject
-  has_trait :collision_detection, :velocity, :timer, :bounding_box
+  has_traits :collision_detection, :velocity, :timer, :bounding_box
  
   def initialize(options)
     super
@@ -137,8 +142,6 @@ class EnemyGhostBullet < Chingu::GameObject
         
     @image = Image["enemy_ghost_bullet.png"]
     self.rotation_center(:center)
-    
-    update_trait  # this seems to be needed to init the bounding_box correclty, investigate!
   end
 
   def hit_by(object)

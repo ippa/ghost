@@ -12,12 +12,12 @@ require 'texplay'
 #
 # Try to load a local version of Chingu. On fail, load the rubygem.
 #
-require 'chingu'
-#begin
-#  require '../chingu/lib/chingu'
-#rescue LoadError
-#  require 'chingu'
-#end
+#require 'chingu'
+begin
+  require '../chingu/lib/chingu'
+rescue LoadError
+  require 'chingu'
+end
 
 include Gosu
 include Chingu
@@ -38,7 +38,7 @@ class Game < Chingu::Window
     @firepower = 1
     
     switch_game_state(Alive1.new)
-    ##switch_game_state(Screen15.new)
+    ## switch_game_state(Screen2.new)
     ## switch_game_state(Hell.new)
   end
 

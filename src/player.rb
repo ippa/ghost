@@ -1,5 +1,6 @@
 class Player < Chingu::GameObject
-    has_traits :velocity, :bounding_box, :collision_detection, :timer, :effect
+    has_trait :bounding_box, :scale => 0.90
+    has_traits :velocity, :collision_detection, :timer, :effect
     attr_reader :max_steps, :facing
     
     def initialize(options)
@@ -84,44 +85,36 @@ class Player < Chingu::GameObject
 
     def collisions_left?
         bg = $window.current_game_state 
-        box = @bounding_box
 
-        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.height).step(Collision_Step) do |dy| 
-                return true if bg.pixel_collision_at?(box.left - 25, box.top + dy)
+                return true if bg.pixel_collision_at?(self.bb.left - 25, self.bb.top + dy)
         end
         false
     end
 
     def collisions_right?
         bg = $window.current_game_state
-        box = @bounding_box
 
-        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.height).step(Collision_Step) do |dy|
-            return true if bg.pixel_collision_at?(box.right + 25, box.top + dy)
+            return true if bg.pixel_collision_at?(self.bb.right + 25, self.bb.top + dy)
         end
         false
     end
 
     def collisions_top?
         bg = $window.current_game_state
-        box = @bounding_box
         
-        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.width).step(Collision_Step) do |dx|
-            return true if bg.pixel_collision_at?(box.left + dx, box.top - 25)
+            return true if bg.pixel_collision_at?(self.bb.left + dx, self.bb.top - 25)
         end
         false
     end
 
     def collisions_bottom?
         bg = $window.current_game_state
-        box = @bounding_box
 
-        #$window.draw_rect(box, Color.new(0xFFFF0000), 1)
         (0..@image.width).step(Collision_Step) do |dx|
-            return true if bg.pixel_collision_at?(box.left + dx, box.bottom + 25)
+            return true if bg.pixel_collision_at?(self.bb.left + dx, self.bb.bottom + 25)
         end
         false
     end
@@ -132,7 +125,7 @@ class Player < Chingu::GameObject
         up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
         down  if $window.button_down? Button::KbDown  or $window.button_down? Button::GpDown
         fire  if $window.button_down? Button::KbSpace or $window.button_down? Button::GpButton0
-              
+        
         # Slow down the playermovement to a halt when dead
         @velocity_x *= 0.90 if @velocity_x.abs <= @speed
         @velocity_y *= 0.90 if @velocity_y.abs <= @speed
@@ -159,16 +152,13 @@ class Player < Chingu::GameObject
 end
 
 class Bullet < Chingu::GameObject
-  has_trait :collision_detection, :timer, :bounding_box
+  has_traits :collision_detection, :timer, :bounding_box
   
   def initialize(options)
     super
     @image = Image["enemy_ghost_bullet.png"]
     rotation_center(:center)
-    
-    # banisterfiend
     @direc = options[:facing] == :left ? -1 : 1
-    update_trait
   end
 
   def hit_by(object)
