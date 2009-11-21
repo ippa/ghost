@@ -6,28 +6,7 @@ class EnemyGhost < Chingu::GameObject
     
     @type = options[:type] || 1
     @image = Image["enemy_ghost.png"]
-    rotation_center(:center)
-    
-    #@red = Color.new(0xFFFF0000)
-    #@green = Color.new(0xFF00FF00)
-    #@blue = Color.new(0xFFAA00AA)
-    
-    #
-    # We have 3 different kind of ghosts, defaults to type #1
-    #
-    #if @type == 1
-    #  @color = @red.dup
-    #  @speed = 1
-    #  @fire_rate = 2000
-    #elsif @type == 2
-    #  @color = @green.dup
-    #  @speed = 2
-    #  @fire_rate = 1500
-    #elsif @type == 3
-    #  @color = @blue.dup
-    #  @speed = 2
-    #  @fire_rate = 1000
-    #end
+    self.rotation_center = :center
     
     # We have 3 different kind of ghosts, defaults to type #1
     @color, @speed, @fire_rate = case @type
@@ -72,7 +51,7 @@ class EnemySpirit < Chingu::GameObject
     @amp = rand(7)
     
     @image = Image["enemy_spirit.png"]
-    self.rotation_center(:center)
+    self.rotation_center = :center
     
     #
     # We have 3 different kind of spirits, defaults to type #1

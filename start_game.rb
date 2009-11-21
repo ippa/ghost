@@ -1,28 +1,29 @@
 #
 # 
 #
-GAMEROOT = File.dirname(File.expand_path($0))
-$: << File.join(GAMEROOT,"lib")
-ENV['PATH'] = File.join(GAMEROOT,"lib") + ";" + ENV['PATH']
-
 require 'rubygems' unless RUBY_VERSION =~ /1\.9/
 require 'gosu'      # www.libgosu.org - 2D ruby/c++ opengl accerated game framework
 require 'texplay'
 
 #
+# Always load gem if we're packing Win32 EXE with Ocra.
+# Otherwise:
 # Try to load a local version of Chingu. On fail, load the rubygem.
 #
-#require 'chingu'
-begin
-  require '../chingu/lib/chingu'
-rescue LoadError
+if defined?(Ocra)
   require 'chingu'
+else
+  begin
+    require '../chingu/lib/chingu'
+  rescue LoadError
+    require 'chingu'
+  end
 end
 
 include Gosu
 include Chingu
 
-require_all File.join(GAMEROOT, "src")
+require_all File.join(ROOT, "src")
 
 exit if defined?(Ocra)
 

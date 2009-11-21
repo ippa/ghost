@@ -1,1 +1,1 @@
-ocra start_game.rb --no-autodll --windows media\** src\** lib\**\**
+ocra start_game.rb --windows media\** src\** lib\**\**

@@ -20,15 +20,15 @@ class Player < Chingu::GameObject
       
       @cooling_down = false
         
-      #self.input = {
-        #:holding_left => :left, 
-        #:holding_right => :right, 
-        #:holding_up => :up,
-        #:holding_down => :down,
-        #:space => :fire
-      #}
+      self.input = {
+        [:holding_a, :holding_left, :holding_pad_left] => :left, 
+        [:holding_d, :holding_right, :holding_pad_right] => :right, 
+        [:holding_w, :holding_up, :holding_pad_up] => :up,
+        [:holding_s, :holding_down, :holding_pad_down] => :down,
+        [:gamepad_button_2, :space, :f] => :fire
+      }
       
-      rotation_center(:center)
+      self.rotation_center = :center
     end
       
     def hit_by(object)
@@ -119,13 +119,7 @@ class Player < Chingu::GameObject
         false
     end
       
-    def update
-        left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
-        right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
-        up    if $window.button_down? Button::KbUp    or $window.button_down? Button::GpUp
-        down  if $window.button_down? Button::KbDown  or $window.button_down? Button::GpDown
-        fire  if $window.button_down? Button::KbSpace or $window.button_down? Button::GpButton0
-        
+    def update        
         # Slow down the playermovement to a halt when dead
         @velocity_x *= 0.90 if @velocity_x.abs <= @speed
         @velocity_y *= 0.90 if @velocity_y.abs <= @speed
@@ -194,7 +188,10 @@ class AlivePlayer < Chingu::GameObject
         @last_direction = :left
         @factor_x = -1
         self.acceleration_y = 0.3 # gravity!
-        #self.input = { :holding_left => :left, :holding_right => :right }    
+        self.input = { 
+          [:holding_left, :holding_a, :holding_pad_left] => :left, 
+          [:holding_right, :holding_d, :holding_pad_right] => :right 
+        }
     end
     
     def left
@@ -226,9 +223,6 @@ class AlivePlayer < Chingu::GameObject
     
     def update    
         @last_x, @last_y = @x, @y   # Move this to trait "velocity"
-        
-        left  if $window.button_down? Button::KbLeft  or $window.button_down? Button::GpLeft
-        right if $window.button_down? Button::KbRight or $window.button_down? Button::GpRight
         
         handle_collision
         
