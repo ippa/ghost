@@ -14,7 +14,8 @@ if defined?(Ocra)
   require 'chingu'
 else
   begin
-    require '../chingu/lib/chingu'
+    require 'chingu'
+    #require '../chingu/lib/chingu'
   rescue LoadError
     require 'chingu'
   end
