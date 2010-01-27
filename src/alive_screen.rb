@@ -51,6 +51,11 @@ class Alive1 < Chingu::GameState
       @player.rotation_rate = 8
     end
     
+    if @player_hit
+      @player.velocity_x  = -10
+      @player.velocity_y  = -10
+    end
+      
     switch_game_state(Funeral) if @player.outside_window?
   end
   

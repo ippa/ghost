@@ -96,7 +96,7 @@ class Screen < Chingu::GameState
     #
     # Collide playerbullets with our all enemies (we have 2 different enemy classes)
     #
-    Bullet.each_bounding_box_collision([EnemyGhost, EnemySpirit]) do |bullet, enemy|
+    Bullet.each_bounding_box_collision(EnemyGhost, EnemySpirit) do |bullet, enemy|
       enemy.hit_by(bullet)
       bullet.hit_by(enemy)
     end
